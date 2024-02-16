@@ -1,5 +1,5 @@
 
-
+import random
 
 class Board():
 
@@ -47,7 +47,53 @@ class Board():
             print(f"| {chr(c+j)}  ", end='')
         print("| ")
         print((self.BOARD_SIZE*5+2)*"-")
+
     
+
+
+
+    def play_game(self):
+            
+        checkmate = False
+        stalemate = False
+        done = False
+
+        team = 0
+
+        while not done:
+
+            valid = False
+
+            if team == 0:
+
+                while not valid:
+
+                    move = self.white.turn()
+                    print('White is trying to move...', move)
+                    print(type(move[0]))
+
+                    # Working to get position of piece being moved, on the board
+                    # try: https://stackoverflow.com/questions/41686020/python-custom-class-indexing 
+                    print('Piece being moved in in space:', self.arr.index(move[0]))
+                    #alternatively, store each pieces position on the board, and update with a move 
+
+                    # valid = check_move()
+                    valid = True
+
+            elif team == 1:
+                #Black Moves
+                print('Black is tying to move...')
+                pass
+
+            if checkmate or stalemate: 
+                done = True
+
+                pass
+            
+            team = not team # Change Team
+            done = True
+
+        return
 
 
 class Team():
@@ -97,6 +143,16 @@ class Team():
         return
 
 
+    def turn(self):
+
+        piece = random.choice(self.pieces)
+        print('Piece:', piece)
+
+        move = random.choice(piece.move_set)
+        print('Move', move)
+
+
+        return [piece, move]
 
 
 class Piece():
@@ -114,11 +170,12 @@ class Piece():
     def __repr__(self):
 
         if self.team == 0:
-            return 'w' + self.name[0]
+            # return 'w' + self.name[0]
+            return 'w' + self.name
         elif self.team == 1:
-            return 'b' + self.name[0]
+            # return 'b' + self.name[0]
+            return 'b' + self.name
 
- 
 
 class Pawn(Piece):
 
@@ -132,11 +189,14 @@ class Rook(Piece):
         # super().__init__()
         self.name = name
         self.team = team
+        self.move_set = []
 
         for n in range(8):
             i = n + 1
-            self.move_set.append((0, i+1)) 
-            self.move_set.append((i+1, 0)) 
+            self.move_set.append((i, 0))
+            self.move_set.append((0, i)) 
+            self.move_set.append((-i, 0)) 
+            self.move_set.append((0, -i)) 
 
 
 class Knight(Piece):
@@ -155,12 +215,15 @@ class Bishop(Piece):
 
         self.name = name 
         self.team = team
+        self.move_set = []
 
-        for i in range(8):
-            self.move_set += (i, i)
-            self.move_set += (i, -i)
-            self.move_set += (-i, i)
-            self.move_set += (-i, -i)
+        for n in range(8):
+            i = n + 1
+            self.move_set.append((i, i))
+            self.move_set.append((i, -i))
+            self.move_set.append((-i, i))
+            self.move_set.append((-i, -i))
+
 
 class Queen(Piece):
 
@@ -168,17 +231,19 @@ class Queen(Piece):
 
         self.name = name 
         self.team = team
+        self.move_set = []
 
         for n in range(8):
-
             i = n + 1
-            self.move_set += (i, i)
-            self.move_set += (i, -i)
-            self.move_set += (-i, i)
-            self.move_set += (-i, -i)
+            self.move_set.append((i, i))
+            self.move_set.append((i, -i))
+            self.move_set.append((-i, i))
+            self.move_set.append((-i, -i))
 
-            self.move_set.append((0, i+1)) 
-            self.move_set.append((i+1, 0)) 
+            self.move_set.append((i, 0))
+            self.move_set.append((0, i)) 
+            self.move_set.append((-i, 0)) 
+            self.move_set.append((0, -i)) 
 
 
 class King(Piece):

@@ -5,8 +5,11 @@ import Pieces
 if __name__ == "__main__":
 
 
-    board = Pieces.Board
+    board = Pieces.Board()
 
-    board.__init__(board)
+    board.__init__()
 
-    Pieces.Board.print_board(board)
+    board.print_board()
+
+    board.play_game()
+

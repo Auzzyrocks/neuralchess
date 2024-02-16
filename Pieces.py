@@ -139,7 +139,7 @@ class Team():
             self.k0 = King('k0', color, (7, 4))
         
         else: 
-            # Define White Pieces
+            # Define Black Pieces
             self.p0 = Pawn('p0', color, (1, 7))
             self.p1 = Pawn('p1', color, (1, 6))
             self.p2 = Pawn('p2', color, (1, 5))

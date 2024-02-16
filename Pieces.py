@@ -72,8 +72,9 @@ class Board():
                 while not valid:
 
                     move = self.white.turn()
+                    print(" ")
                     print('White is trying to move...', move)
-                    print(type(move[0]))
+
 
                     # Working to get position of piece being moved, on the board
                     # try: https://stackoverflow.com/questions/41686020/python-custom-class-indexing 
@@ -81,13 +82,27 @@ class Board():
                     #alternatively, store each pieces position on the board, and update with a move 
 
                     #Testing
-                    move = [self.white.pieces[1], (0, 1)] 
+                    move = Piece()
+                    move = [self.white.pieces[1], (-1, 0)] 
 
                     print(self.white.p0)
+                    print(type(move[0]))
                     print('Move:', move)
+
+                    cur_pos = move[0].pos
+                    new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
+                    print("Move from:", cur_pos, "to:", new_pos)
 
                     # valid = check_move()
                     valid = True
+
+                self.arr[new_pos[0]][new_pos[1]] = move[0]
+                move[0].pos = new_pos
+                print(move[0], move[0].pos)
+                self.arr[cur_pos[0]][cur_pos[1]] = "--"
+
+
+
 
             elif team == 1:
                 #Black Moves

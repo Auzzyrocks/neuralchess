@@ -444,6 +444,7 @@ class Board():
     def capture(self):
         print("Capturing..!")
         self.print_board()
+        self.print_board(self.print_file)
         pass
 
 

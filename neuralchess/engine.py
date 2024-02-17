@@ -13,7 +13,6 @@ def main():
 
     game.play_game()
 
-    game.print_board()
 
 
 

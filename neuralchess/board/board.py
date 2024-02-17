@@ -1,6 +1,7 @@
 
 import random
 
+
 class Board():
 
     BOARD_SIZE = 8
@@ -30,30 +31,30 @@ class Board():
 
         return
     
-    
-    # def print_board(self):
+    """
+    def print_board(self):
 
-    #     c = 65
-    #     print(f"   ", end='')
-    #     for j in range(self.BOARD_SIZE):
-    #         print(f"  {j}  ", end='')
-    #     print("")
-    #     print("  ", (self.BOARD_SIZE*5)*"-")
+        c = 65
+        print(f"   ", end='')
+        for j in range(self.BOARD_SIZE):
+            print(f"  {j}  ", end='')
+        print("")
+        print("  ", (self.BOARD_SIZE*5)*"-")
 
-    #     for i in range(self.BOARD_SIZE):
-    #         print(f" {i} ", end='')
+        for i in range(self.BOARD_SIZE):
+            print(f" {i} ", end='')
 
-    #         for j in range(self.BOARD_SIZE):
-    #             print(f"| {self.arr[i][j]} ", end='')
-    #         print("|", end='')
-    #         print(f" {self.BOARD_SIZE-i} ")
-    #         print("  ", (self.BOARD_SIZE*5)*"-")
+            for j in range(self.BOARD_SIZE):
+                print(f"| {self.arr[i][j]} ", end='')
+            print("|", end='')
+            print(f" {self.BOARD_SIZE-i} ")
+            print("  ", (self.BOARD_SIZE*5)*"-")
             
-    #     print(f"   ", end='')
-    #     for j in range(self.BOARD_SIZE):
-    #         print(f"  {chr(c+j)}  ", end='')
-    #     print("")
-
+        print(f"   ", end='')
+        for j in range(self.BOARD_SIZE):
+            print(f"  {chr(c+j)}  ", end='')
+        print("")
+    """
 
     def print_board(self, f = None):
 

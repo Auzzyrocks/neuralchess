@@ -4,6 +4,7 @@ import random
 class Board():
 
     BOARD_SIZE = 8
+    print_file = "game.txt"
 
     arr = [['--']*8 for i in range(8)]
 
@@ -30,35 +31,34 @@ class Board():
         return
     
     
-    def print_board(self):
+    # def print_board(self):
 
-        c = 65
-        print(f"   ", end='')
-        for j in range(self.BOARD_SIZE):
-            print(f"  {j}  ", end='')
-        print("")
-        print("  ", (self.BOARD_SIZE*5)*"-")
+    #     c = 65
+    #     print(f"   ", end='')
+    #     for j in range(self.BOARD_SIZE):
+    #         print(f"  {j}  ", end='')
+    #     print("")
+    #     print("  ", (self.BOARD_SIZE*5)*"-")
 
-        for i in range(self.BOARD_SIZE):
-            print(f" {i} ", end='')
+    #     for i in range(self.BOARD_SIZE):
+    #         print(f" {i} ", end='')
 
-            for j in range(self.BOARD_SIZE):
-                print(f"| {self.arr[i][j]} ", end='')
-            print("|", end='')
-            print(f" {self.BOARD_SIZE-i} ")
-            print("  ", (self.BOARD_SIZE*5)*"-")
+    #         for j in range(self.BOARD_SIZE):
+    #             print(f"| {self.arr[i][j]} ", end='')
+    #         print("|", end='')
+    #         print(f" {self.BOARD_SIZE-i} ")
+    #         print("  ", (self.BOARD_SIZE*5)*"-")
             
-        print(f"   ", end='')
-        for j in range(self.BOARD_SIZE):
-            print(f"  {chr(c+j)}  ", end='')
-        print("")
-
-        print("Total Moves:", self.total_moves)
+    #     print(f"   ", end='')
+    #     for j in range(self.BOARD_SIZE):
+    #         print(f"  {chr(c+j)}  ", end='')
+    #     print("")
 
 
-    def print_board_file(self):
+    def print_board(self, f = None):
 
-        f = open("game.txt", "a")
+        if f != None:
+            f = open(self.print_file, "a")
 
         c = 65
         print(f"   ", end='', file=f)
@@ -81,20 +81,37 @@ class Board():
             print(f"  {chr(c+j)}  ", end='', file=f)
         print("", file=f)
 
+        print("")
+        print("*" * 40, "\n", file=f)
+
+        if f != None:
+            f.close()
+        return
+    
+
+    def print_stats(self, f = None):
+
+        if f != None:
+            f = open(self.print_file, 'a')
+
         print("Total Moves:", self.total_moves, file=f)
-        print("\n", "*" * 30, "\n", file=f)
-
-        f.close()
-
+        print("\nTotal Invalid moves:", sum(self.invalid_move_set), file=f)
+        if self.total_moves != 0:
+            print("\nAverage Invalid moves / Turn:", sum(self.invalid_move_set) / self.total_moves, file=f)
+        print("\nInvalid Moves / Turn:", self.invalid_move_set, file=f)
+    
+        if f != None:
+            f.close()
 
 
     def play_game(self):
 
-        f = open("game.txt", "w")
+        f = open(self.print_file, "w")
         print("New Game:\n", file=f)
         f.close()
 
-        self.print_board_file()
+        self.print_board()
+        self.print_board(self.print_file)
             
         checkmate = False
         stalemate = False
@@ -160,14 +177,33 @@ class Board():
                         print("Invalid Moves is", TESTING_LIMIT, "... Total moves is:", self.total_moves)
 
                         self.print_board()
+                        self.print_board(self.print_file)
                         valid = True
                         done = True
                         return True
                 
                 elif valid: 
-                    print("Move is Valid!")
+
+                    print("Move is Valid!\n")
 
                     # Move piece on board
+
+                    # Basic win checker 
+                        # Is King on the square we're taking...?
+                    winner = -1
+                    captured = self.arr[new_pos[0]][new_pos[1]]
+                    if type(captured) == King: 
+
+                        if captured.team == 1:
+                            winner = 0
+                            done = True
+
+                        if captured.team == 0:
+                            winner = 1 
+                            done = True
+
+                    # End Basic win checker
+                    
                     self.arr[new_pos[0]][new_pos[1]] = move[0] 
 
                     # update piece object's position
@@ -178,7 +214,44 @@ class Board():
 
                     # Update total moves and print
                     self.total_moves += 1   
-                    self.print_board_file()
+
+                    print("")
+
+                    # Winner output for Basic win checker
+                    if winner != -1:
+
+                        f = open(self.print_file, 'a')
+
+                        if winner == 0:
+
+                            print("*" * 15)                
+                            print("* White Wins! *") 
+                            print("*" * 15)  
+                        
+                            print("*" * 15, file=f)  
+                            print("* White Wins! *", file=f)
+                            print("*" * 15, file=f)  
+
+                        elif winner == 1:
+
+                            print("*" * 15)  
+                            print("* Black Wins! *")
+                            print("*" * 15) 
+                        
+                            print("*" * 15, file=f)  
+                            print("* Black Wins! *", file=f)
+                            print("*" * 15, file=f)  
+
+                        f.close()
+
+                        self.print_board(self.print_file)
+                        self.print_stats(self.print_file)
+
+                        self.print_board()
+                        self.print_stats()
+
+
+                    # End Winner output for Basic win checker
 
 
             # TURN IS DONE
@@ -187,20 +260,15 @@ class Board():
             
             team = not team # Change Team
 
-
             self.invalid_move_set += [invalid_moves] # List of invald_moves / turn
             
-            print("New Team is:", team)
+            # print("New Team is:", team)
 
             if checkmate or stalemate: 
                 done = True
                 pass
 
-
         # GAME IS DONE
-
-
-
         return
     
 

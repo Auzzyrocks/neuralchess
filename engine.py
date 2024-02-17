@@ -13,6 +13,5 @@ if __name__ == "__main__":
 
     board.play_game()
 
-    board.print_board()
+    # board.print_board()
 
-    

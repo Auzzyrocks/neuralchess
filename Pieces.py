@@ -73,35 +73,45 @@ class Board():
 
                     move = self.white.turn()
                     print(" ")
-                    print('White is trying to move...', move)
+                    # print('White is trying to move...', move)
+
+                    # print(self.white.p0)
+                    # print(type(move[0]))
+                    # print('Move:', move)
 
 
-                    # Working to get position of piece being moved, on the board
-                    # try: https://stackoverflow.com/questions/41686020/python-custom-class-indexing 
-                    # print('Piece being moved in in space:', self.arr.index(move[0]))
-                    #alternatively, store each pieces position on the board, and update with a move 
+                    ### TEST CASES ###
 
-                    #Testing
-                    move = Piece()
-                    move = [self.white.pieces[1], (-1, 0)] 
+                    # Rook captures pawn
+                    # move = [self.arr[7][7], (-6, 0)]
+                    # self.arr[6][7] = '--'
 
-                    print(self.white.p0)
-                    print(type(move[0]))
-                    print('Move:', move)
+                    # Pawn moving diagonally
+                    # move = [self.arr[6][5], (-1, -1)]
+
+                    # Pawn first move, two spaces
+                    move = [self.arr[6][5], (-2, 0)]
+
+
+                    ### END TEST CASES ###
 
                     cur_pos = move[0].pos
                     new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
-                    print("Move from:", cur_pos, "to:", new_pos)
+                    # print("Move from:", cur_pos, "to:", new_pos)
 
-                    # valid = check_move()
-                    valid = True
+
+                    valid = self.validate_move(move[0], move[1], cur_pos, new_pos) 
+                    
+                    if not valid:
+                        print("The move was not valid. Try again...")
+                        
+                    
+                    # valid = True
 
                 self.arr[new_pos[0]][new_pos[1]] = move[0]
                 move[0].pos = new_pos
                 print(move[0], move[0].pos)
                 self.arr[cur_pos[0]][cur_pos[1]] = "--"
-
-
 
 
             elif team == 1:
@@ -118,6 +128,175 @@ class Board():
             done = True
 
         return
+    
+
+    def validate_move(self, piece, move, cur_pos, new_pos):
+
+
+        def take_step(move, step):
+
+            # Set first step
+            if move[0] < 0:
+                step[0] -= 1
+
+            if move[0] > 0:
+                step[0] += 1
+
+            if move[1] < 0:
+                step[1] -= 1
+
+            if move[1] > 0:
+                step[1] += 1
+
+            return step
+
+            
+        # Check if move is onto board
+        if new_pos[0] < 0 or new_pos [0] >= self.BOARD_SIZE:
+            return False
+        
+        if new_pos[1] < 0 or new_pos [1] >= self.BOARD_SIZE:
+            return False
+        
+        print(type(piece))
+        
+        # Nothing gets in the way of a knight...
+        if type(piece) == "<class 'Pieces.Knight'>":
+            print("Nothing gets in the way of a Knight...")
+            # print("NOW AT:", pos)
+
+            if self.arr[pos[0]][pos[1]] == '--':
+                print("Space is available. Move is Valid.")
+                return True
+
+            elif self.arr[pos[0]][pos[1]].team == piece.team:
+                print("The space occupied by your own piece...")
+                return False
+            
+            else:
+                self.capture()
+                # Need to write capture code...
+                return True
+        
+
+        # Take ya to the pawn shop...
+        elif type(piece) is Pawn:
+
+            print("Piece Type: Pawn")
+
+            step = [0, 0]
+            pos = list(piece.pos)
+            step = take_step(move, step)
+
+            pos[0] += step[0]
+            pos[1] += step[1]
+
+            # If trying to make it's first move...
+            if piece.num_moves == 0:
+                
+                if move[0] or move[1] == 2 or -2:
+
+                     # Step to the target position 
+                    while pos != new_pos:
+                
+                        pos[0] += step[0]
+                        pos[1] += step[1]
+
+                        if pos != new_pos:
+                        
+                            # Check a piece is in the way
+                            if self.arr[pos[0]][pos[1]] != '--':
+                                print("space not empty...")
+                                return False
+                        
+                        # Have reached the target spot..
+                        else:  
+
+                            if self.arr[pos[0]][pos[1]] == '--':
+                                print("Space is available. Move is Valid.")
+                                return True
+
+                            elif self.arr[pos[0]][pos[1]].team == piece.team:
+                                print("The space occupied by your own piece...")
+                                return False
+                            
+
+                pass
+            
+            #Trying to capture diagonally...
+            print(move)
+            if (abs(move[0]) + abs(move[1]) ) > 1:
+
+                if self.arr[pos[0]][pos[1]] == '--':
+                    print("Pawn cannot move diagonally without capturing... Move invalid")
+                    return False
+                
+                if self.arr[pos[0]][pos[1]].team == piece.team:
+                    print("The space occupied by your own piece...")
+                    return False
+                
+                self.capture()
+                return True
+                
+            # Trying to move forward
+            else:
+
+                if self.arr[pos[0]][pos[1]] != '--':
+                    print("The space is infront of the pawn is occupied...")
+                    return False
+
+                print("Pawn is moving forward one space!")
+                return True
+                pass
+
+
+        # Piece is not a kinght or Pawn
+        else:
+
+            step = [0, 0]
+            pos = list(piece.pos)
+
+            step = take_step(move, step)
+
+            # Step to the target position 
+            while pos != new_pos:
+                
+                    pos[0] += step[0]
+                    pos[1] += step[1]
+
+                    # print("stepping to:", pos)
+                    
+                    if pos != new_pos:
+                    
+                        # Check a piece is in the way
+                        if self.arr[pos[0]][pos[1]] != '--':
+                            print("space not empty...")
+                            return False
+                    
+                    # Have reached the target spot..
+                    else:  
+
+                        # print("NOW AT:", pos)
+
+                        if self.arr[pos[0]][pos[1]] == '--':
+                            print("Space is available. Move is Valid.")
+                            return True
+
+                        elif self.arr[pos[0]][pos[1]].team == piece.team:
+                            print("The space occupied by your own piece...")
+                            return False
+                        
+                        else:
+                            self.capture()
+                            # Capture!
+
+                            # Need to write capture code...
+                            return True
+
+
+    def capture():
+        print("Capturing..!")
+        pass
 
 
 class Team():

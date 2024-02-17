@@ -4,7 +4,7 @@ import random
 class Board():
 
     BOARD_SIZE = 8
-    print_file = "game.txt"
+    game_print_board_file = "data/game.txt"
 
     arr = [['--']*8 for i in range(8)]
 
@@ -58,7 +58,7 @@ class Board():
     def print_board(self, f = None):
 
         if f != None:
-            f = open(self.print_file, "a")
+            f = open(self.game_print_board_file, "a")
 
         c = 65
         print(f"   ", end='', file=f)
@@ -92,7 +92,7 @@ class Board():
     def print_stats(self, f = None):
 
         if f != None:
-            f = open(self.print_file, 'a')
+            f = open(self.game_print_board_file, 'a')
 
         print("Total Moves:", self.total_moves, file=f)
         print("\nTotal Invalid moves:", sum(self.invalid_move_set), file=f)
@@ -106,12 +106,12 @@ class Board():
 
     def play_game(self):
 
-        f = open(self.print_file, "w")
+        f = open(self.game_print_board_file, "w")
         print("New Game:\n", file=f)
         f.close()
 
         self.print_board()
-        self.print_board(self.print_file)
+        self.print_board(self.game_print_board_file)
             
         checkmate = False
         stalemate = False
@@ -177,7 +177,7 @@ class Board():
                         print("Invalid Moves is", TESTING_LIMIT, "... Total moves is:", self.total_moves)
 
                         self.print_board()
-                        self.print_board(self.print_file)
+                        self.print_board(self.game_print_board_file)
                         valid = True
                         done = True
                         return True
@@ -220,7 +220,7 @@ class Board():
                     # Winner output for Basic win checker
                     if winner != -1:
 
-                        f = open(self.print_file, 'a')
+                        f = open(self.game_print_board_file, 'a')
 
                         if winner == 0:
 
@@ -244,8 +244,8 @@ class Board():
 
                         f.close()
 
-                        self.print_board(self.print_file)
-                        self.print_stats(self.print_file)
+                        self.print_board(self.game_print_board_file)
+                        self.print_stats(self.game_print_board_file)
 
                         self.print_board()
                         self.print_stats()
@@ -444,7 +444,7 @@ class Board():
     def capture(self):
         print("Capturing..!")
         self.print_board()
-        self.print_board(self.print_file)
+        self.print_board(self.game_print_board_file)
         pass
 
 

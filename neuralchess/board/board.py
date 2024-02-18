@@ -31,6 +31,7 @@ class Board():
 
         return
     
+
     """
     def print_board(self):
 
@@ -56,6 +57,7 @@ class Board():
         print("")
     """
 
+
     def print_board(self, f = None):
 
         if f != None:
@@ -66,7 +68,7 @@ class Board():
         for j in range(self.BOARD_SIZE):
             print(f"  {j}  ", end='', file=f)
         print("", file=f)
-        print("  ", (self.BOARD_SIZE*5)*"-", file=f)
+        print("   ", (self.BOARD_SIZE*5)*"-", file=f)
 
         for i in range(self.BOARD_SIZE):
             print(f" {i} ", end='', file=f)
@@ -75,7 +77,7 @@ class Board():
                 print(f"| {self.arr[i][j]} ", end='', file=f)
             print("|", end='', file=f)
             print(f" {self.BOARD_SIZE-i} ", file=f)
-            print("  ", (self.BOARD_SIZE*5)*"-", file=f)
+            print("   ", (self.BOARD_SIZE*5)*"-", file=f)
             
         print(f"   ", end='', file=f)
         for j in range(self.BOARD_SIZE):
@@ -83,7 +85,7 @@ class Board():
         print("", file=f)
 
         print("")
-        print("*" * 40, "\n", file=f)
+        print("*" * 47, "\n", file=f)
 
         if f != None:
             f.close()
@@ -154,6 +156,9 @@ class Board():
 
                 # Pawn first move, two spaces
                 # move = [self.arr[6][5], (-2, 0)]
+
+                # Pawn moving off the board
+                # move = [self.arr[1][5], (0, 2)]
 
                 # Knight first move
                 # move = [self.arr[7][1], (-2, 1)]
@@ -346,7 +351,16 @@ class Board():
                         pos[1] += step[1]
                 
                         if pos != new_pos:
-                        
+
+                            # Check if step is off the board
+                            if pos[0] < 0 or pos[1] >= self.BOARD_SIZE:
+                                print("Piece is stepping off the board")
+                                return False
+                            
+                            if pos[0] < 0 or pos[1] >= self.BOARD_SIZE:
+                                print("Piece is stepping off the board")
+                                return False
+                            
                             # Check a piece is in the way
                             if self.arr[pos[0]][pos[1]] != '--':
                                 print("space not empty...")
@@ -396,7 +410,6 @@ class Board():
                     print("Pawn is moving forward one space!")
                     return True
                 
-
 
         # OTHER: Piece is not a kinght or Pawn
         else:

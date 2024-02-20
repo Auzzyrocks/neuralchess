@@ -32,32 +32,6 @@ class Board():
         return
     
 
-    """
-    def print_board(self):
-
-        c = 65
-        print(f"   ", end='')
-        for j in range(self.BOARD_SIZE):
-            print(f"  {j}  ", end='')
-        print("")
-        print("  ", (self.BOARD_SIZE*5)*"-")
-
-        for i in range(self.BOARD_SIZE):
-            print(f" {i} ", end='')
-
-            for j in range(self.BOARD_SIZE):
-                print(f"| {self.arr[i][j]} ", end='')
-            print("|", end='')
-            print(f" {self.BOARD_SIZE-i} ")
-            print("  ", (self.BOARD_SIZE*5)*"-")
-            
-        print(f"   ", end='')
-        for j in range(self.BOARD_SIZE):
-            print(f"  {chr(c+j)}  ", end='')
-        print("")
-    """
-
-
     def print_board(self, f = None):
 
         if f != None:
@@ -566,7 +540,6 @@ class Team():
 
         move = random.choice(piece.move_set)
         print('Move', move)
-
 
         return [piece, move]
 

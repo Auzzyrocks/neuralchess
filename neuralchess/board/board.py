@@ -84,7 +84,7 @@ class Board():
             f.close()
 
 
-    def play_game(self):
+    def play_game(self, move=None):
 
         f = open(self.game_print_board_file, "w")
         print("New Game:\n", file=f)
@@ -239,6 +239,167 @@ class Board():
         # GAME IS DONE
         return
     
+
+    def play_turn(self, team, input = None):
+
+        state = [self.arr.copy(), None, None, None]
+        reward = 0
+
+        f = open(self.game_print_board_file, "w")
+        print("New Game:\n", file=f)
+        f.close()
+
+        self.print_board()
+        self.print_board(self.game_print_board_file)
+            
+        done = False
+        valid = False
+
+        invalid_moves = 0
+
+        while not valid:
+
+            if input is None:
+                print("Moves attempted:", invalid_moves)
+                print("Valid Moves:", self.total_moves)
+
+                if team == 0:
+                    print("White's Turn...")
+                    move = self.white.turn()
+                else:
+                    print("Black's Turn...")
+                    move = self.black.turn()
+            
+            else:
+                move = input
+
+            ### TEST CASES ###
+            TESTING_LIMIT = 1000
+
+            # Rook captures pawn
+            # move = [self.arr[7][7], (-6, 0)]
+            # self.arr[6][7] = '--'
+
+            # Pawn moving diagonally
+            # move = [self.arr[6][5], (-1, -1)]
+
+            # Pawn first move, two spaces
+            # move = [self.arr[6][5], (-2, 0)]
+
+            # Pawn moving off the board
+            # move = [self.arr[1][5], (0, 2)]
+
+            # Knight first move
+            # move = [self.arr[7][1], (-2, 1)]
+
+
+            ### END TEST CASES ###
+
+            cur_pos = move[0].pos
+            new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
+
+            valid = self.validate_move(move[0], move[1], new_pos) 
+            
+            if not valid:
+                print("The move was not valid. Try again...")
+                invalid_moves += 1
+
+                # Debugging
+                if invalid_moves == TESTING_LIMIT:
+
+                    print("Invalid Moves is", TESTING_LIMIT, "... Total moves is:", self.total_moves)
+
+                    self.print_board()
+                    self.print_board(self.game_print_board_file)
+                    valid = True
+                    done = True
+                    return True
+            
+            elif valid: 
+
+                print("Move is Valid!\n")
+
+                # Move piece on board
+
+                # Basic win checker 
+                    # Is King on the square we're taking...?
+                winner = -1
+                captured = self.arr[new_pos[0]][new_pos[1]]
+                if type(captured) == King: 
+
+                    reward = 1
+
+                    if captured.team == 1:
+                        winner = 0
+                        done = True
+
+                    if captured.team == 0:
+                        winner = 1 
+                        done = True
+
+                # End Basic win checker   
+                
+                self.arr[new_pos[0]][new_pos[1]] = move[0] 
+
+                # update piece object's position
+                move[0].pos = new_pos
+
+                # Set old space to '--'
+                self.arr[cur_pos[0]][cur_pos[1]] = "--" 
+
+                # Update total moves and print
+                self.total_moves += 1   
+
+                print("")
+
+                # Winner output for Basic win checker
+                if winner != -1:
+
+                    f = open(self.game_print_board_file, 'a')
+
+                    if winner == 0:
+
+                        print("*" * 15)                
+                        print("* White Wins! *") 
+                        print("*" * 15)  
+                    
+                        print("*" * 15, file=f)  
+                        print("* White Wins! *", file=f)
+                        print("*" * 15, file=f)  
+
+                    elif winner == 1:
+
+                        print("*" * 15)  
+                        print("* Black Wins! *")
+                        print("*" * 15) 
+                    
+                        print("*" * 15, file=f)  
+                        print("* Black Wins! *", file=f)
+                        print("*" * 15, file=f)  
+
+                    f.close()
+
+                    self.print_board(self.game_print_board_file)
+                    self.print_stats(self.game_print_board_file)
+
+                    self.print_board()
+                    self.print_stats()
+
+
+                    # End Winner output for Basic win checker
+
+
+        self.invalid_move_set += [invalid_moves] # Track list of invald_moves / turn
+        # state[1] = move
+        # state[2] = self.arr.copy()
+        # state[3] = reward
+
+        # Turn is done
+        if done:
+            return True #, team, state
+        else:
+            return False #, team, state
+
 
     def take_step(self, move, step):
 
@@ -465,11 +626,18 @@ class Board():
 
 
 
-    def action_to_move(action: list):
-        """Takes a 3d array representing an action 
+    def action_to_move(self, a: int):
+        """Takes an integer representing an action 
             and returns a move to be input to the game"""
 
-        pass
+        x = a // (6*49)
+        y = (a // 49) % 6
+        mv = a % (6*49) % 49
+
+        piece = self.arr[x][y]
+        move = self.action_to_move_list[mv]
+
+        return [piece, move]
 
 
     def generate_action_to_move_list(self):

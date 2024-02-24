@@ -17,9 +17,23 @@ def main():
 
     # game.print_board()
 
-    game.play_game()
+    # game.play_game()
+    done = False
+    team = 0
 
-    print("FINAL OBSERVATION:\n", list(game.board_to_obs()))
+    while done is False:
+
+        done = game.play_turn(team)
+
+        game.total_moves += 1
+        
+        team = not team
+
+    # print("FINAL OBSERVATION:\n", list(game.board_to_obs()))
+
+    test_action = 3*5*9
+
+    print("TEST ACTION TO MOVE:", game.action_to_move(test_action))
 
 
     ### Testing Env ###

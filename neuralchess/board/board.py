@@ -1,5 +1,6 @@
 
 import random
+import numpy as np
 
 
 class Board():
@@ -15,6 +16,8 @@ class Board():
         self.black = Team(1)
         self.total_moves = 0
         self.invalid_move_set = []
+
+        self.action_to_move_list = self.generate_action_to_move_list()
 
         Board.set_board(self)
 
@@ -462,6 +465,72 @@ class Board():
 
 
 
+    def action_to_move(action: list):
+        """Takes a 3d array representing an action 
+            and returns a move to be input to the game"""
+
+        pass
+
+
+    def generate_action_to_move_list(self):
+
+        actions = []
+
+        # Generate Queen moves
+        for x in range(-5, 6):
+            for y in range(-5, 6):
+
+                if x==0 or y==0 or abs(x)==abs(y):
+                    actions += [[x, y]]
+                    # pass
+
+        # Generate Knight Moves
+        for x in range(-2, 3):
+            for y in range(-2, 3):
+
+                if (abs(x)==2 and abs(y)==1) or (abs(x)==1 and abs(y)==2):
+                    actions += [[x, y]]
+
+        print(actions)
+        print(len(actions))
+        return actions
+
+
+    CHANNEL_DICT = {
+
+        "wp" : 0, # 3
+        "wr" : 1, # 4 ..
+        "wn" : 2, 
+        "wq" : 3,
+        "wk" : 4,
+
+        "bp" : 5,
+        "br" : 6, 
+        "bn" : 7,
+        "bq" : 8,
+        "bk" : 9 # .. 12
+    }
+
+
+    def board_to_obs(self):
+        """Takes the current board state, converts it to a 3d array 
+            represnting an observation and returns"""
+
+        observation = np.zeros((6, 6, 10), dtype=bool)
+
+        for i in range(len(self.arr)):
+            for j in range(len(self.arr[i])):
+
+                square = self.arr[i][j]
+
+                if square != "--":
+
+                    print("Square not empty.. Updating Obs at:", i, j, self.CHANNEL_DICT[square.__repr__()])
+                    observation[i][j][self.CHANNEL_DICT[square.__repr__()]] =True
+
+        return observation
+
+
 class Team():
 
     color = 0
@@ -531,7 +600,6 @@ class Team():
 
         return [piece, move]
 
-
 class Piece():
 
     name = ''
@@ -559,7 +627,7 @@ class Piece():
 
 class Pawn(Piece):
 
-    move_set = [(0, 1), (0, 2), (-1, 1), (1, 1)]
+    move_set = [(0, 1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
 
 class Rook(Piece):
@@ -572,7 +640,7 @@ class Rook(Piece):
         self.pos = pos
         self.move_set = []
 
-        for n in range(8):
+        for n in range(Board.BOARD_SIZE):
             i = n + 1
             self.move_set.append((i, 0))
             self.move_set.append((0, i)) 
@@ -590,21 +658,21 @@ class Knight(Piece):
                 (-i, -j), (-j, -i)]
     
 
-class Bishop(Piece):
+# class Bishop(Piece):
 
-    def __init__(self, name = '', team = '', pos = None):
+#     def __init__(self, name = '', team = '', pos = None):
 
-        self.name = name 
-        self.team = team
-        self.pos = pos
-        self.move_set = []
+#         self.name = name 
+#         self.team = team
+#         self.pos = pos
+#         self.move_set = []
 
-        for n in range(8):
-            i = n + 1
-            self.move_set.append((i, i))
-            self.move_set.append((i, -i))
-            self.move_set.append((-i, i))
-            self.move_set.append((-i, -i))
+#         for n in range(8):
+#             i = n + 1
+#             self.move_set.append((i, i))
+#             self.move_set.append((i, -i))
+#             self.move_set.append((-i, i))
+#             self.move_set.append((-i, -i))
 
 
 class Queen(Piece):
@@ -632,3 +700,4 @@ class Queen(Piece):
 class King(Piece):
 
     move_set = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+

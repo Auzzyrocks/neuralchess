@@ -13,19 +13,28 @@ def main():
 
     game.__init__()
 
-    game.print_board()
+    print(game.action_to_move_list)
+
+    # game.print_board()
 
     game.play_game()
 
+    print("FINAL OBSERVATION:\n", list(game.board_to_obs()))
+
 
     ### Testing Env ###
-    # game = env.env()
+    game = env.env()
 
     # test = [[[0]*8 for i in range(8)]]
 
     # print(test[0])
 
-    # game.reset()
+    game.reset()
+
+    # action = game.action_space(game.agent_selection).sample()
+
+    # print("ACTION:", action)
+    # print("ACTION:", action % 6)
 
     # api_test(game, num_cycles=10, verbose_progress=True)
     # print(result[0])

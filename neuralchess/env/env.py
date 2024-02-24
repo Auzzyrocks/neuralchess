@@ -38,14 +38,14 @@ class ChessEnv(AECEnv):
         self.OBS_CHANNELS = 12
         self.ACT_CHANNELS = 64
 
-        self.BOARD_SIZE = 8
+        self.BOARD_SIZE = 6
         self.possible_agents = ["player_0", "player_1"] # White = 0, Black = 1
 
         self.turns = None
         self.render_mode = render_mode
 
-        self._observation_space = {agent : MultiDiscrete([8, 8, self.OBS_CHANNELS]) for agent in self.possible_agents}
-        self._action_space = {agent : MultiDiscrete([8, 8, self.ACT_CHANNELS]) for agent in self.possible_agents}
+        self._observation_space = {agent : MultiDiscrete([6, 6, self.OBS_CHANNELS]) for agent in self.possible_agents}
+        self._action_space = {agent : MultiDiscrete([6, 6, self.ACT_CHANNELS]) for agent in self.possible_agents}
 
 
     # Observation space should be defined here.
@@ -106,66 +106,59 @@ class ChessEnv(AECEnv):
         self._agent_selector = agent_selector(self.agents)
         self.agent_selection = self._agent_selector.next()
 
-        observation = [[[0]*self.BOARD_SIZE for i in range(8)] for j in range(100)]
+        observation = [[[0]*self.BOARD_SIZE for i in range(self.BOARD_SIZE)] for j in range(100)]
 
         def set_board(obs):
             """Set observations as a new chess board
 
-            Channel 0/6: Pawn
-            Channel 1/7: Rook
-            Channel 2/8: Knight
-            Channel 3/9: Bishop
-            Channel 4/10: Queen
-            Channel 5/11: King
-            Channel 12: Current Team (White=0)
+            Channel 0/5: Pawn
+            Channel 1/6: Rook
+            Channel 2/7: Knight
+            Channel 3/8: Queen
+            Channel 4/9: King
+            Channel 10: Current Team (White=0)
+            Channel 11: Move Counter 
 
             """    
-            # Channels 0-5: White Pieces 
+            # Channels 0-4: White Pieces 
 
             # White Pawns
             for i in range(self.BOARD_SIZE):
-                obs[0][6][i] = 1
+                obs[5][1][i] = 1
 
             # White Rooks
-            obs[1][7][0] = 1
-            obs[1][7][7] = 1
+            obs[6][0][0] = 1
+            obs[6][0][5] = 1
             
             # White Knights
-            obs[2][7][1] = 1
-            obs[2][7][6] = 1
-            
-            # White Bishops
-            obs[3][7][2] = 1
-            obs[3][7][5] = 1
+            obs[7][0][1] = 1
+            obs[7][0][4] = 1
             
             # White Queen
-            obs[4][7][3] = 1
+            obs[8][0][2] = 1
+
 
             # White King
-            obs[5][7][4] = 1
+            obs[9][0][3] = 1
 
-            # Channels 6-11: Black Pieces
+            # Channels 5-9: Black Pieces
             # Black Pawns
             for i in range(self.BOARD_SIZE):
-                obs[6][1][i] = 1
+                obs[0][6][i] = 1
 
             # Black Rooks
-            obs[7][0][0] = 1
-            obs[7][0][7] = 1
+            obs[1][5][0] = 1
+            obs[1][5][5] = 1
             
             # Black Knights
-            obs[8][0][1] = 1
-            obs[8][0][6] = 1
-            
-            # Black Bishops
-            obs[9][0][2] = 1
-            obs[9][0][5] = 1
-            
+            obs[2][5][1] = 1
+            obs[2][5][4] = 1
+                        
             # Black Queen
-            obs[10][0][3] = 1
+            obs[3][5][2] = 1
 
             # Black King
-            obs[11][0][4] = 1
+            obs[4][5][3] = 1
 
             return obs
         

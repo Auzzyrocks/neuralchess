@@ -10,6 +10,30 @@ import numpy as np
 
 from board import board
 
+""" Observation Channel Info
+
+    Game Info:
+        Channel 0: Current Team (White=0)
+        Channel 1: Move Counter 
+        Channel 2: Board Edges (All ones) 
+
+    Piecs:      W/B
+        Channel 3/8: Pawn
+        Channel 4/9: Rook
+        Channel 5/10: Knight
+        Channel 6/11: Queen
+        Channel 7/12: King
+    
+    Previous Boards:
+        Channel 13-22: Board - 1
+        Channel 23-32: Board - 2
+        Channel 33-42: Board - 3
+        Channel 43-52: Board - 4
+        Channel 53-62: Board - 5
+        Channel 63-72: Board - 6
+        Channel 73-82: Board - 7
+"""    
+
 
 def env(render_mode=None):
     """
@@ -51,7 +75,7 @@ class ChessEnv(AECEnv):
             agent : Dict(
                 {
                     "observation" : Box(low=0, high=1, shape=(6, 6, self.OBS_CHANNELS), dtype=bool),
-                    "action_mask" : Box(low=0, high=1, shape=(6, 6, self.OBS_CHANNELS), dtype=np.int8)
+                    "action_mask" : Box(low=0, high=1, shape=(1764, ), dtype=np.int8)
                 }
             ) for agent in self.possible_agents}
 
@@ -97,7 +121,18 @@ class ChessEnv(AECEnv):
         at any time after reset() is called.
         """
         # observation of one agent is the previous state of the other
-        return np.array(self.observations[agent])
+
+        observation = self.observation_spaces[agent]["observation"]
+        action_mask = np.zeros(1764, "int8")
+
+        # for i in legal_moves:
+        #     action_mask[i] = 1
+
+        # Placeholders to pass test until observe is completed
+        # observation = Box(low=0, high=1, shape=(6, 6, self.OBS_CHANNELS))
+        # action_mask = np.zeros(1764, "int8")
+
+        return {"observation" : observation, "action_mask" : action_mask}
 
 
     def close():
@@ -122,78 +157,6 @@ class ChessEnv(AECEnv):
         # observation = [[[0]*self.BOARD_SIZE for i in range(self.BOARD_SIZE)] for j in range(100)]
         observation = Box(low=0, high=1, shape=(6, 6, self.OBS_CHANNELS), dtype=bool)
 
-
-        # def set_board(obs):
-        #     """Set observations as a new chess board
-
-        #     Game Info:
-        #         Channel 0: Current Team (White=0)
-        #         Channel 1: Move Counter 
-        #         Channel 2: Board Edges (All ones) 
-
-        #     Piecs:      W/B
-        #         Channel 3/8: Pawn
-        #         Channel 4/9: Rook
-        #         Channel 5/10: Knight
-        #         Channel 6/11: Queen
-        #         Channel 7/12: King
-            
-        #     Previous Boards:
-        #         Channel 13-22: Board - 1
-        #         Channel 23-32: Board - 2
-        #         Channel 33-42: Board - 3
-        #         Channel 43-52: Board - 4
-        #         Channel 53-62: Board - 5
-        #         Channel 63-72: Board - 6
-        #         Channel 73-82: Board - 7
-
-        #     """    
-
-
-        #     # Channel 0: Current Team 
-
-        #     # Channels 3-7: White Pieces 
-
-        #     # White Pawns
-        #     for i in range(self.BOARD_SIZE):
-        #         obs[3][1][i] = 1
-
-        #     # White Rooks
-        #     obs[4][0][0] = 1
-        #     obs[4][0][5] = 1
-            
-        #     # White Knights
-        #     obs[5][0][1] = 1
-        #     obs[5][0][4] = 1
-            
-        #     # White Queen
-        #     obs[6][0][2] = 1
-
-        #     # White King
-        #     obs[7][0][3] = 1
-
-        #     # Channels 5-9: Black Pieces
-        #     # Black Pawns
-        #     for i in range(self.BOARD_SIZE):
-        #         obs[8][4][i] = 1
-
-        #     # Black Rooks
-        #     obs[9][5][0] = 1
-        #     obs[9][5][5] = 1
-            
-        #     # Black Knights
-        #     obs[10][5][1] = 1
-        #     obs[10][5][4] = 1
-                        
-        #     # Black Queen
-        #     obs[11][5][2] = 1
-
-        #     # Black King
-        #     obs[12][5][3] = 1
-
-        #     return obs
-
-        
         # observation = set_board(observation)    
         self.observations = {agent: observation for agent in self.agents}
                 
@@ -235,18 +198,18 @@ class ChessEnv(AECEnv):
 
 
         # Win Checker - Check if either king was taken
-        if sum(self._observation_space[self.agent_selection][4]) == 0:
-            # White Lost...
-            self.rewards["player_0"] = -1
-            self.rewards["player_1"] = 1
-            self.terminations["player_0"] = True
+        # if sum(self.observation_spaces[self.agent_selection][4]) == 0:
+        #     # White Lost...
+        #     self.rewards["player_0"] = -1
+        #     self.rewards["player_1"] = 1
+        #     self.terminations["player_0"] = True
             
-        elif sum(self._observation_space[self.agent_selection][9]) == 0: 
-            # Black Lost...
-            # Set rewards...
-            self.rewards["player_0"] = 1
-            self.rewards["player_1"] = -1
-            self.terminations["player_1"] = True
+        # elif sum(self.observation_spaces[self.agent_selection][9]) == 0: 
+        #     # Black Lost...
+        #     # Set rewards...
+        #     self.rewards["player_0"] = 1
+        #     self.rewards["player_1"] = -1
+        #     self.terminations["player_1"] = True
 
 
             

@@ -625,7 +625,6 @@ class Board():
         pass
 
 
-
     def action_to_move(self, a: int):
         """Takes an integer representing an action 
             and returns a move to be input to the game"""

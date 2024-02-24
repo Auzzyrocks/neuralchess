@@ -31,9 +31,8 @@ def main():
 
     # print("FINAL OBSERVATION:\n", list(game.board_to_obs()))
 
-    test_action = 3*5*9
-
-    print("TEST ACTION TO MOVE:", game.action_to_move(test_action))
+    # test_action = 3*5*9
+    # print("TEST ACTION TO MOVE:", game.action_to_move(test_action))
 
 
     ### Testing Env ###
@@ -49,6 +48,18 @@ def main():
 
     # print("ACTION:", action)
     # print("ACTION:", action % 6)
+
+    game.reset()
+
+    # observation_0, *_ = game.last()
+
+    # print("OBS_0:", observation_0)
+    # print("OBS_0 Type:", type(observation_0))
+
+    # if isinstance(observation_0, dict) and "observation" in observation_0:
+    #     observation_0 = observation_0["observation"]
+    #     print("OBS_0:", observation_0)
+    #     print("OBS_0 Type:", type(observation_0))
 
     # api_test(game, num_cycles=10, verbose_progress=True)
     # print(result[0])

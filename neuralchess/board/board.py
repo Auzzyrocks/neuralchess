@@ -4,10 +4,10 @@ import random
 
 class Board():
 
-    BOARD_SIZE = 8
+    BOARD_SIZE = 6
     game_print_board_file = "data/game.txt"
 
-    arr = [['--']*8 for i in range(8)]
+    arr = [['--']*6 for i in range(BOARD_SIZE)]
 
     def __init__(self):
 
@@ -474,58 +474,46 @@ class Team():
 
         if self.color == 0:
             # Define White Pieces
-            self.p0 = Pawn('p0', color, (6, 0))
-            self.p1 = Pawn('p1', color, (6, 1))
-            self.p2 = Pawn('p2', color, (6, 2))
-            self.p3 = Pawn('p3', color, (6, 3))
-            self.p4 = Pawn('p4', color, (6, 4))
-            self.p5 = Pawn('p5', color, (6, 5))
-            self.p6 = Pawn('p6', color, (6, 6))
-            self.p7 = Pawn('p7', color, (6, 7))
+            self.p0 = Pawn('p0', color, (4, 0))
+            self.p1 = Pawn('p1', color, (4, 1))
+            self.p2 = Pawn('p2', color, (4, 2))
+            self.p3 = Pawn('p3', color, (4, 3))
+            self.p4 = Pawn('p4', color, (4, 4))
+            self.p5 = Pawn('p5', color, (4, 5))
 
-            self.r0 = Rook('r0', color, (7, 0))
-            self.r1 = Rook('r1', color, (7, 7))
+            self.r0 = Rook('r0', color, (5, 0))
+            self.r1 = Rook('r1', color, (5, 5))
 
-            self.n0 = Knight('n0', color, (7, 1))
-            self.n1 = Knight('n1', color, (7, 6))
+            self.n0 = Knight('n0', color, (5, 1))
+            self.n1 = Knight('n1', color, (5, 4))
 
-            self.b0 = Bishop('b0', color, (7, 2))
-            self.b1 = Bishop('b1', color, (7, 5))
-
-            self.q0 = Queen('q0', color, (7, 3))
-            self.k0 = King('k0', color, (7, 4))
+            self.q0 = Queen('q0', color, (5, 2))
+            self.k0 = King('k0', color, (5, 3))
         
         else: 
             # Define Black Pieces
-            self.p0 = Pawn('p0', color, (1, 7))
-            self.p1 = Pawn('p1', color, (1, 6))
-            self.p2 = Pawn('p2', color, (1, 5))
-            self.p3 = Pawn('p3', color, (1, 4))
-            self.p4 = Pawn('p4', color, (1, 3))
-            self.p5 = Pawn('p5', color, (1, 2))
-            self.p6 = Pawn('p6', color, (1, 1))
-            self.p7 = Pawn('p7', color, (1, 0))
+            self.p0 = Pawn('p0', color, (1, 5))
+            self.p1 = Pawn('p1', color, (1, 4))
+            self.p2 = Pawn('p2', color, (1, 3))
+            self.p3 = Pawn('p3', color, (1, 2))
+            self.p4 = Pawn('p4', color, (1, 1))
+            self.p5 = Pawn('p5', color, (1, 0))
 
-            self.r0 = Rook('r0', color, (0, 7))
+            self.r0 = Rook('r0', color, (0, 5))
             self.r1 = Rook('r1', color, (0, 0))
 
-            self.n0 = Knight('n0', color, (0, 6))
+            self.n0 = Knight('n0', color, (0, 4))
             self.n1 = Knight('n1', color, (0, 1))
 
-            self.b0 = Bishop('b0', color, (0, 5))
-            self.b1 = Bishop('b1', color, (0, 2))
-
-            self.q0 = Queen('q0', color, (0, 4))
-            self.k0 = King('k0', color, (0, 3))
+            self.q0 = Queen('q0', color, (0, 3))
+            self.k0 = King('k0', color, (0, 2))
     
         # Build Piece List
-        self.pieces = [self.p0, self.p1, self.p2, self.p3, self.p4, self.p5, self.p6, self.p7]
+        self.pieces = [self.p0, self.p1, self.p2, self.p3, self.p4, self.p5]
         self.pieces += [self.r0]
         self.pieces += [self.n0]
-        self.pieces += [self.b0]
         self.pieces += [self.q0]
         self.pieces += [self.k0]
-        self.pieces += [self.b1]
         self.pieces += [self.n1]
         self.pieces += [self.r1]
 
@@ -553,7 +541,7 @@ class Piece():
 
     pos = (-1, -1)
     
-    def __init__(self, name = '', team = '', pos = (-1, 1)):
+    def __init__(self, name = '', team = '', pos = None):
 
         self.name = name 
         self.team = team
@@ -568,8 +556,6 @@ class Piece():
             return 'b' + self.name[0]
             # return 'b' + self.name
         
-        
-
 
 class Pawn(Piece):
 
@@ -578,7 +564,7 @@ class Pawn(Piece):
 
 class Rook(Piece):
 
-    def __init__(self, name = '', team = '', pos = (-1, 1)):
+    def __init__(self, name = '', team = '', pos = None):
 
         # super().__init__()
         self.name = name
@@ -606,7 +592,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
 
-    def __init__(self, name = '', team = '', pos = (-1, 1)):
+    def __init__(self, name = '', team = '', pos = None):
 
         self.name = name 
         self.team = team
@@ -623,14 +609,14 @@ class Bishop(Piece):
 
 class Queen(Piece):
 
-    def __init__(self, name = '', team = '', pos = (-1, 1)):
+    def __init__(self, name = '', team = '', pos = None):
 
         self.name = name 
         self.team = team
         self.pos = pos
         self.move_set = []
 
-        for n in range(8):
+        for n in range(Board.BOARD_SIZE):
             i = n + 1
             self.move_set.append((i, i))
             self.move_set.append((i, -i))

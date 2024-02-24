@@ -1,34 +1,38 @@
 from env import env
+from board import board
 
 from pettingzoo.test import api_test
 
 
 def main():
 
-    # board.Board()
+    ### Testing Board ###
+    board.Board()
 
-    # game = board.Board()
+    game = board.Board()
 
-    # game.__init__()
+    game.__init__()
 
-    # game.print_board()
+    game.print_board()
 
-    # game.play_game()
+    game.play_game()
 
-    game = env.env()
 
+    ### Testing Env ###
+    # game = env.env()
 
     # test = [[[0]*8 for i in range(8)]]
 
     # print(test[0])
 
-    game.reset()
+    # game.reset()
 
-    api_test(game, num_cycles=10, verbose_progress=True)
+    # api_test(game, num_cycles=10, verbose_progress=True)
     # print(result[0])
 
+    # print("")
 
-    print("")
+
 
 if __name__ == "__main__":
 

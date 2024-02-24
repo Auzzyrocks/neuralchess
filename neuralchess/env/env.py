@@ -3,7 +3,7 @@ from copy import copy
 
 from pettingzoo import AECEnv
 from pettingzoo.utils import agent_selector, wrappers
-from gymnasium.spaces import Discrete, MultiDiscrete
+from gymnasium.spaces import Dict, Discrete, MultiDiscrete
 from gymnasium import logger
 
 import numpy as np
@@ -44,8 +44,8 @@ class ChessEnv(AECEnv):
         self.turns = None
         self.render_mode = render_mode
 
-        self.observation_spaces = {agent : MultiDiscrete([8, 8, self.OBS_CHANNELS]) for agent in self.possible_agents}
-        self.action_spaces = {agent : MultiDiscrete([8, 8, self.ACT_CHANNELS]) for agent in self.possible_agents}
+        self._observation_space = {agent : MultiDiscrete([8, 8, self.OBS_CHANNELS]) for agent in self.possible_agents}
+        self._action_space = {agent : MultiDiscrete([8, 8, self.ACT_CHANNELS]) for agent in self.possible_agents}
 
 
     # Observation space should be defined here.
@@ -54,13 +54,13 @@ class ChessEnv(AECEnv):
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
         # gymnasium spaces are defined and documented here: https://gymnasium.farama.org/api/spaces/
-        return self.observation_spaces[agent]
+        return self._observation_space[agent]
 
     # Action space should be defined here.
     # If your spaces change over time, remove this line (disable caching).
     @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
-        return self.action_spaces[agent]
+        return self._action_space[agent]
 
 
     def render(self):
@@ -195,7 +195,9 @@ class ChessEnv(AECEnv):
 
         # Update board with move...
         # Pick up a piece...
-        for channel in self.observation_space[self.agent_selection][0:11]:
+        for channel in self.observations[self.agent_selection][0:11]:
+            print(channel)
+
             if channel[action[0]][action[1]] == 1:
                 channel[action[0]][action[1]]
 
@@ -207,13 +209,13 @@ class ChessEnv(AECEnv):
 
 
         # Win Checker - Check if either king was taken
-        if sum(self.observation_spaces[self.agent_selection][5][7][4]) == 0:
+        if sum(self._observation_space[self.agent_selection][5][7][4]) == 0:
             # White Lost...
             self.rewards["player_0"] = -1
             self.rewards["player_1"] = 1
             self.terminations["player_0"] = True
             
-        elif sum(self.observation_spaces[self.agent_selection][11][0][4]) == 0: 
+        elif sum(self._observation_space[self.agent_selection][11][0][4]) == 0: 
             # Black Lost...
             # Set rewards...
             self.rewards["player_0"] = 1

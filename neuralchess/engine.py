@@ -24,7 +24,7 @@ def main():
 
     game.reset()
 
-    # api_test(game, num_cycles=10, verbose_progress=True)
+    api_test(game, num_cycles=10, verbose_progress=True)
     # print(result[0])
 
 

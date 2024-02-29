@@ -1,33 +1,36 @@
 from env import env
 from board import board
 
+import random
+
 from pettingzoo.test import api_test
 
 
 def main():
 
     ### Testing Board ###
-    board.Board()
+    # board.Board()
 
-    game = board.Board()
+    # game = board.Board()
 
-    game.__init__()
+    # game.__init__()
 
-    print(game.action_to_move_list)
+    # print(game.action_to_move_list)
 
     # game.print_board()
 
     # game.play_game()
-    done = False
-    team = 0
 
-    while done is False:
+    # done = False
+    # team = 0
 
-        done = game.play_turn(team)
+    # while done is False:
 
-        game.total_moves += 1
+    #     done = game.play_turn(team)
+
+    #     game.total_moves += 1
         
-        team = not team
+    #     team = not team
 
     # print("FINAL OBSERVATION:\n", list(game.board_to_obs()))
 
@@ -49,7 +52,10 @@ def main():
     # print("ACTION:", action)
     # print("ACTION:", action % 6)
 
-    game.reset()
+    # print("ACTION_TO_MOVE_LIST:", game.action_to_move_list)
+    # print("LEN:", len(game.action_to_move_list))
+
+    # game.reset()
 
     # observation_0, *_ = game.last()
 
@@ -60,6 +66,49 @@ def main():
     #     observation_0 = observation_0["observation"]
     #     print("OBS_0:", observation_0)
     #     print("OBS_0 Type:", type(observation_0))
+
+
+    # while game.game_over is False:
+
+    #     agent = game.agent_selection 
+    #     game.observe(agent)
+        
+    #     done = False
+
+    #     while not done:
+
+    #         action = random.randint(0, 1764)
+
+    #         obs_space = game.observation_space(agent)
+
+    #         if obs_space["action_mask"] == 1:
+    #             done = True
+
+    #     game.step(action)
+    #     done = True
+
+
+
+
+    agent = game.agent_selection 
+    game.observe(agent)
+    
+    done = False
+
+    while not done:
+
+        action = random.randint(0, 1764)
+
+        obs_space = game.observation_space(agent)
+
+        if obs_space["action_mask"] == 1:
+            done = True
+        done= True
+
+    game.step(action)
+
+
+
 
     # api_test(game, num_cycles=10, verbose_progress=True)
     # print(result[0])

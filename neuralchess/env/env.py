@@ -68,6 +68,9 @@ class ChessEnv(AECEnv):
         self.BOARD_SIZE = 6
         self.possible_agents = ["player_0", "player_1"] # White = 0, Black = 1
 
+        self.board = board.Board()
+        self.game_over = False
+
         self.turns = 0
         self.render_mode = render_mode
 
@@ -122,8 +125,9 @@ class ChessEnv(AECEnv):
         """
         # observation of one agent is the previous state of the other
 
-        observation = self.observation_spaces[agent]["observation"]
-        action_mask = np.zeros(1764, "int8")
+        # observation = self.observation_spaces[agent]["observation"]
+        observation = self.board.board_to_obs()
+        action_mask = self.board.get_action_mask()
 
         # for i in legal_moves:
         #     action_mask[i] = 1
@@ -140,6 +144,8 @@ class ChessEnv(AECEnv):
 
 
     def reset(self, seed=None, options=None):
+
+        self.board.reset()
 
         self.agents = copy(self.possible_agents)
         self.num_moves = 0
@@ -159,11 +165,10 @@ class ChessEnv(AECEnv):
 
         # observation = set_board(observation)    
         self.observations = {agent: observation for agent in self.agents}
-                
         return
 
-    def step(self, action):
 
+    def step(self, action):
 
         # action = Discrete(3)
         # action = (8, 8, 73)
@@ -175,46 +180,69 @@ class ChessEnv(AECEnv):
 
         agent = self.agent_selection
 
+        team = -1
+
+        if agent == 'player_0':
+            team == 0
+        else:
+            team == 1
+
         self._cumulative_rewards[agent] = 0
 
-        self.states[self.agent_selection] = action # [agent]?
+        # self.states[self.agent_selection] = action 
+
+        action = int(action)
+
+        move = self.board.action_to_move(action)
+
+        print("PRINTING MY ACTION:", action)
+        print("PRINTING MY MOVE:", move)
+
+        legal_moves = self.board.get_legal_moves()
+
+        print("PRINTING MY ACTION:", action)
+        print("PRINTING MY MOVE:", move)
+        print("LEGAL MOVES:", legal_moves)
+
+        # assert move in legal_moves
+        if move not in legal_moves:
+            for player in self.agents:
+                self.terminations[player] = True
+
+                if player is agent:
+                    self.rewards[player] = -1
+                else:
+                    self.rewards[player] = 0
+
+                self.infos[player] = {"legal_moves": []}
+                self.game_over = True
+
+
+        print("** Playing Turn Number:", self.turns)
+
+        done = self.board.play_turn(team, move)
+
+        if done:
+            for player in self.agents:
+                self.terminations[player] = True
+
+                if player is agent:
+                    self.rewards[player] = 1
+                else:
+                    self.rewards[player] = -1
+
+                self.infos[player] = {"legal_moves": []}
+                self.game_over = True
 
 
 
-        # Update board with move...
-        # Pick up a piece...
-        # for channel in self.observations[self.agent_selection][0:11]:
-        #     print("Channel:", channel)
-        #     print("Chanel Type:", type(channel))
-
-        #     if channel[action[0]][action[1]] == 1:
-        #         channel[action[0]][action[1]]
-
-        # Move a piece
-        # Need to decode action_space value into a coordinate set (x, y) to add to the pices current position 
-        # Dict? arr[73] = [(x, y), ]
-        
-        # channel[action[0] + x][action[1] + y]
-
-
-        # Win Checker - Check if either king was taken
-        # if sum(self.observation_spaces[self.agent_selection][4]) == 0:
-        #     # White Lost...
-        #     self.rewards["player_0"] = -1
-        #     self.rewards["player_1"] = 1
-        #     self.terminations["player_0"] = True
-            
-        # elif sum(self.observation_spaces[self.agent_selection][9]) == 0: 
-        #     # Black Lost...
-        #     # Set rewards...
-        #     self.rewards["player_0"] = 1
-        #     self.rewards["player_1"] = -1
-        #     self.terminations["player_1"] = True
-
-
-            
-        self.agent_selection = self._agent_selector.next()
+        self.turns += 1
         self._accumulate_rewards()
+        self.agent_selection = self._agent_selector.next()
+
+        next_board = self.observe()
+        self.board_history = np.dstack(next_board[:, :, 7], self.board_history[:, :, :-13])
+
 
         return
 

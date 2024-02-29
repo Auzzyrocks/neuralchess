@@ -16,12 +16,18 @@ class Board():
         self.black = Team(1)
         self.total_moves = 0
         self.invalid_move_set = []
+        self.BOARD_SIZE = 6
 
         self.action_to_move_list = self.generate_action_to_move_list()
 
         Board.set_board(self)
 
+
+    def reset(self):
+        self.__init__()
+        return
         
+
     def set_board(self):
 
         # Set White
@@ -239,8 +245,11 @@ class Board():
         # GAME IS DONE
         return
     
-
+    ### NEED TO UPDATE play_turn() to accept a [[x, y], [w, z]] move format
+    ### ie; [pos, new_pos]
     def play_turn(self, team, input = None):
+
+        print("---- PLAY TURN CALLED ---")
 
         state = [self.arr.copy(), None, None, None]
         reward = 0
@@ -298,8 +307,10 @@ class Board():
             cur_pos = move[0].pos
             new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
 
+            print("Validating...")
             valid = self.validate_move(move[0], move[1], new_pos) 
-            
+            print("VALID:", valid)
+
             if not valid:
                 print("The move was not valid. Try again...")
                 invalid_moves += 1
@@ -315,7 +326,7 @@ class Board():
                     done = True
                     return True
             
-            elif valid: 
+            else: 
 
                 print("Move is Valid!\n")
 
@@ -421,16 +432,18 @@ class Board():
 
     def validate_move(self, piece, move, new_pos):
 
+        # print("VALIDATE MOVE CALLED")
         # Check if move is onto board
+
         if new_pos[0] < 0 or new_pos [0] >= self.BOARD_SIZE:
             return False
         
         if new_pos[1] < 0 or new_pos [1] >= self.BOARD_SIZE:
             return False
         
-        print(type(piece))
-        print("Move:", move)
-        print("New Position:", new_pos)
+        # print(type(piece))
+        # print("Move:", move)
+        # print("New Position:", new_pos)
 
         # KNIGHT: Nothing gets in the way of a knight...
         if type(piece) is Knight:
@@ -620,8 +633,8 @@ class Board():
         print("Capturing..!")
         # Capturing already works by default, because the piece captured is replaced on the board by the capturing piece
         # Not sure what happens when the engine tries to move a piece that has been captured.... should add checking if the piece is still active.. or only choose a move from active pieces
-        self.print_board()
-        self.print_board(self.game_print_board_file)
+        # self.print_board()
+        # self.print_board(self.game_print_board_file)
         pass
 
 
@@ -636,7 +649,7 @@ class Board():
         piece = self.arr[x][y]
         move = self.action_to_move_list[mv]
 
-        return [piece, move]
+        return [[x, y], move]
 
 
     def generate_action_to_move_list(self):
@@ -696,6 +709,79 @@ class Board():
                     observation[i][j][self.CHANNEL_DICT[square.__repr__()]] =True
 
         return observation
+
+
+    def get_action_mask(self):
+
+        # action_mask = [0 for i in range(6*6*49)]
+        # action_mask = np.zeros((1764, ), dtype=np.int8)
+        action_mask = [[[0 for i in range(49)] for j in range(6)] for k in range(6)]
+        print(action_mask)
+        print(len(action_mask))
+        self.legal_moves = []
+
+        c = 0
+        for i in range(len(self.arr)):
+            for j in range(len(self.arr[i])):
+
+                if self.arr[i][j] != '--':
+
+                    c = 0
+
+                    for move in self.action_to_move_list:
+
+                        print("len:", len(self.action_to_move_list))
+                        print("atom:", self.action_to_move_list)
+
+                        new_pos = [(move[0] + i), (move[1] + j)]
+
+                        print('*'*7)
+                        print("C:", c)
+                        print("I:", i)
+                        print("J:", j)
+                        print("Move:", move)
+                        print("New Pos:", new_pos)
+                        valid = self.validate_move(self.arr[i][j], move, new_pos)
+
+                        if valid: 
+                            action_mask[i][j][c] = 1
+                            # action_mask[i*j*c] = 1
+                            # np.insert(action_mask, 1)
+                        else:
+                            action_mask[i][j][c] = 0
+                            # action_mask[i*j*c] = 0
+                            # np.insert(action_mask, 0)
+
+                        c += 1
+
+        # action_mask = np.array
+        return np.asarray(action_mask)
+
+
+    def get_legal_moves(self):
+
+        # action_mask = []
+        self.legal_moves = []
+
+        c = 0
+        for i in range(len(self.arr)):
+            for j in range(len(self.arr[i])):
+
+                if self.arr[i][j] != '--':
+
+                    for move in self.action_to_move_list:
+
+                        new_pos = [(move[0] + i), (move[1] + j)]
+                        
+                        valid = self.validate_move(self.arr[i][j], move, new_pos)
+
+                        if valid: 
+                            self.legal_moves += [[[i, j], move]]
+                            pass
+
+                c += 1
+
+        return self.legal_moves
 
 
 class Team():
@@ -766,6 +852,7 @@ class Team():
         print('Move', move)
 
         return [piece, move]
+
 
 class Piece():
 

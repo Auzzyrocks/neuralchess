@@ -124,20 +124,11 @@ class ChessEnv(AECEnv):
         at any time after reset() is called.
         """
         # observation of one agent is the previous state of the other
-
-        # observation = self.observation_spaces[agent]["observation"]
         observation = self.board.board_to_obs(agent)
         observation = np.dstack((observation[:, :, :3], self.board_history))
         
         action_mask = self.board.get_action_mask()
 
-        # for i in legal_moves:
-        #     action_mask[i] = 1
-
-        # Placeholders to pass test until observe is completed
-        # observation = Box(low=0, high=1, shape=(6, 6, self.OBS_CHANNELS))
-        # action_mask = np.zeros(1764, "int8")
-        print("Done observing..")
         return {"observation" : observation, "action_mask" : action_mask}
 
 
@@ -146,6 +137,8 @@ class ChessEnv(AECEnv):
 
 
     def reset(self, seed=None, options=None):
+
+        self.__init__()
 
         self.board.reset()
 
@@ -177,7 +170,7 @@ class ChessEnv(AECEnv):
         # action = (8, 8, 73)
 
         if self.terminations[self.agent_selection] or self.truncations[self.agent_selection]:
-            self._was_dead_step()
+            self._was_dead_step(action)
             return
 
 
@@ -202,7 +195,6 @@ class ChessEnv(AECEnv):
         # print("PRINTING MY MOVE:", move)
 
         legal_moves = self.board.get_legal_moves()
-        print("LEGAL MOVES", legal_moves)
 
         # print("PRINTING MY ACTION:", action)
         # print("PRINTING MY MOVE:", move)
@@ -229,8 +221,6 @@ class ChessEnv(AECEnv):
 
         done = self.board.play_turn(team, move)
 
-        print("Is done?", done)
-
         if done:
             for player in self.agents:
                 self.terminations[player] = True
@@ -244,26 +234,24 @@ class ChessEnv(AECEnv):
                 self.game_over = True
 
 
-
         self.turns += 1
         self._accumulate_rewards()
         self.agent_selection = self._agent_selector.next()
 
-        print("Observing, in step...")
-
         ### Need to update observation space with previous observations...
         next_board = self.observe(agent)
         # print("NEXT BOARD:", next_board)
-        print(np.shape(self.board_history))
-        print(np.shape(next_board['observation']))
-        # self.board_history = np.dstack((next_board['observation'][:, :, 3:], self.board_history[:, :, -10]))
+
+        # print(np.shape(self.board_history))
+        # print(np.shape(next_board['observation']))
 
         # self.observation_space[agent]['observation'] = np.dstack((next_board['observation'][:, :, 3:], self.board_history[:, :, :-10]))
         self.observation_spaces[agent] = self.observe(agent)
         # self.observation_space[agent]['action_mask'] = next_board['action_mask']
         
+        if self.game_over is False:
+            self.render()
 
-        self.render()
         print("Done step #", self.turns)
         return
 

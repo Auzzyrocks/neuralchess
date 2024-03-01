@@ -429,147 +429,88 @@ class Board():
         self.print_board(self.game_print_board_file)
             
         done = False
-        valid = False
 
         invalid_moves = 0
+        move = input
 
-        while not valid:
+        cur_pos = move[0]
+        new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
 
-            if input is None:
-                print("Moves attempted:", invalid_moves)
-                print("Valid Moves:", self.total_moves)
+        piece = self.arr[cur_pos[0]][cur_pos[1]]
+        print("PIECE IS:", piece)
 
-                if team == 0:
-                    print("White's Turn...")
-                    move = self.white.turn()
-                else:
-                    print("Black's Turn...")
-                    move = self.black.turn()
+        if piece is str:
+            return False
+
+        valid = self.validate_move(piece, move[1], new_pos) 
+
+        if not valid:
+            return False
+
+        winner = -1
+        captured = self.arr[new_pos[0]][new_pos[1]]
+        if type(captured) == King: 
+
+            reward = 1
+
+            if captured.team == 1:
+                winner = 0
+                done = True
+
+            if captured.team == 0:
+                winner = 1 
+                done = True
+
+        # End Basic win checker   
+        
+        self.arr[new_pos[0]][new_pos[1]] = piece
+
+        # update piece object's position
+        piece.pos = new_pos
+
+        # Set old space to '--'
+        self.arr[cur_pos[0]][cur_pos[1]] = "--" 
+
+        # Update total moves and print
+        self.total_moves += 1   
+
+        print("")
+
+        # Winner output for Basic win checker
+        if winner != -1:
+
+            f = open(self.game_print_board_file, 'a')
+
+            if winner == 0:
+
+                print("*" * 15)                
+                print("* White Wins! *") 
+                print("*" * 15)  
             
-            else:
-                move = input
+                print("*" * 15, file=f)  
+                print("* White Wins! *", file=f)
+                print("*" * 15, file=f)  
 
-            ### TEST CASES ###
-            TESTING_LIMIT = 1000
+            elif winner == 1:
 
-            # Rook captures pawn
-            # move = [self.arr[7][7], (-6, 0)]
-            # self.arr[6][7] = '--'
-
-            # Pawn moving diagonally
-            # move = [self.arr[6][5], (-1, -1)]
-
-            # Pawn first move, two spaces
-            # move = [self.arr[6][5], (-2, 0)]
-
-            # Pawn moving off the board
-            # move = [self.arr[1][5], (0, 2)]
-
-            # Knight first move
-            # move = [self.arr[7][1], (-2, 1)]
-
-
-            ### END TEST CASES ###
-
-            cur_pos = move[0]
-            new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
-
-
-            piece = self.arr[cur_pos[0]][cur_pos[1]]
-            # print("SETTING PIECE VAR:", piece)
-
-            # print("Validating...")
-            valid = self.validate_move(piece, move[1], new_pos) 
-            # print("PIECE :", piece)
-            # print("VALID:", valid)
-
-            if not valid:
-                # print("The move was not valid. Try again...")
-                invalid_moves += 1
-
-                # Debugging
-                if invalid_moves == TESTING_LIMIT:
-
-                    print("Invalid Moves is", TESTING_LIMIT, "... Total moves is:", self.total_moves)
-
-                    self.print_board()
-                    self.print_board(self.game_print_board_file)
-                    valid = True
-                    done = True
-                    return True
+                print("*" * 15)  
+                print("* Black Wins! *")
+                print("*" * 15) 
             
-            else: 
+                print("*" * 15, file=f)  
+                print("* Black Wins! *", file=f)
+                print("*" * 15, file=f)  
 
-                # print("Move is Valid!\n")
+            f.close()
 
-                # Move piece on board
+            self.print_board(self.game_print_board_file)
+            self.print_stats(self.game_print_board_file)
 
-                # Basic win checker 
-                    # Is King on the square we're taking...?
-                winner = -1
-                captured = self.arr[new_pos[0]][new_pos[1]]
-                if type(captured) == King: 
-
-                    reward = 1
-
-                    if captured.team == 1:
-                        winner = 0
-                        done = True
-
-                    if captured.team == 0:
-                        winner = 1 
-                        done = True
-
-                # End Basic win checker   
-                
-                self.arr[new_pos[0]][new_pos[1]] = piece
-
-                # update piece object's position
-                piece.pos = new_pos
-
-                # Set old space to '--'
-                self.arr[cur_pos[0]][cur_pos[1]] = "--" 
-
-                # Update total moves and print
-                self.total_moves += 1   
-
-                print("")
-
-                # Winner output for Basic win checker
-                if winner != -1:
-
-                    f = open(self.game_print_board_file, 'a')
-
-                    if winner == 0:
-
-                        print("*" * 15)                
-                        print("* White Wins! *") 
-                        print("*" * 15)  
-                    
-                        print("*" * 15, file=f)  
-                        print("* White Wins! *", file=f)
-                        print("*" * 15, file=f)  
-
-                    elif winner == 1:
-
-                        print("*" * 15)  
-                        print("* Black Wins! *")
-                        print("*" * 15) 
-                    
-                        print("*" * 15, file=f)  
-                        print("* Black Wins! *", file=f)
-                        print("*" * 15, file=f)  
-
-                    f.close()
-
-                    self.print_board(self.game_print_board_file)
-                    self.print_stats(self.game_print_board_file)
-
-                    self.print_board()
-                    self.print_stats()
+            self.print_board()
+            self.print_stats()
 
 
-                    # End Winner output for Basic win checker
+            # End Winner output for Basic win checker
 
 
         self.invalid_move_set += [invalid_moves] # Track list of invald_moves / turn
@@ -577,7 +518,6 @@ class Board():
         # state[2] = self.arr.copy()
         # state[3] = reward
 
-        print("Done play_turn()...", done)
         # Turn is done
         if done:
             return True #, team, state
@@ -712,7 +652,6 @@ class Board():
             
                     if pos != new_pos:
                         
-                        print("POS out of range:", pos)
                         # Check a piece is in the way
                         if self.arr[pos[0]][pos[1]] != '--':
                             # print("space not empty...")
@@ -808,7 +747,6 @@ class Board():
                 if pos != new_pos:
                 
                     # Check a piece is in the way
-                    print("POS Out of range:", pos)
                     if self.arr[pos[0]][pos[1]] != '--':
                         # print("space not empty...")
                         return False
@@ -848,9 +786,7 @@ class Board():
         y = (a // 49) % 6
         mv = a % (6*49) % 49
 
-        piece = self.arr[x][y]
         move = self.action_to_move_list[mv]
-
         return [[x, y], move]
 
 
@@ -928,7 +864,6 @@ class Board():
 
                 if square != "--":
 
-                    # print("Square not empty.. Updating Obs at:", i, j, self.CHANNEL_DICT[square.__repr__()])
                     observation[i][j][self.CHANNEL_DICT[square.__repr__()]] =True
 
         return observation
@@ -936,11 +871,7 @@ class Board():
 
     def get_action_mask(self):
 
-        # action_mask = [0 for i in range(6*6*49)]
-        # action_mask = np.zeros((1764, ), dtype=np.int8)
         action_mask = [[[0 for i in range(49)] for j in range(6)] for k in range(6)]
-        # print(action_mask)
-        # print(len(action_mask))
         self.legal_moves = []
 
         c = 0
@@ -950,44 +881,27 @@ class Board():
                 if self.arr[i][j] != '--':
 
                     c = 0
-
                     for move in self.action_to_move_list:
 
-                        # print("len:", len(self.action_to_move_list))
-                        # print("atom:", self.action_to_move_list)
-
                         new_pos = [(move[0] + i), (move[1] + j)]
-
-                        # print('*'*7)
-                        # print("C:", c)
-                        # print("I:", i)
-                        # print("J:", j)
-                        # print("Move:", move)
-                        # print("New Pos:", new_pos)
                         valid = self.validate_move(self.arr[i][j], move, new_pos)
 
                         if valid: 
                             action_mask[i][j][c] = 1
-                            # action_mask[i*j*c] = 1
-                            # np.insert(action_mask, 1)
+
                         else:
                             action_mask[i][j][c] = 0
-                            # action_mask[i*j*c] = 0
-                            # np.insert(action_mask, 0)
 
                         c += 1
 
-        # action_mask = np.array
-        print("Done getting action mask....")
         return np.ndarray.flatten(np.asarray(action_mask, dtype=np.int8))
 
 
     def get_legal_moves(self):
 
-        # action_mask = []
         self.legal_moves = []
-
         c = 0
+
         for i in range(len(self.arr)):
             for j in range(len(self.arr[i])):
 

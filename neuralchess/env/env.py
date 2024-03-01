@@ -126,7 +126,9 @@ class ChessEnv(AECEnv):
         # observation of one agent is the previous state of the other
 
         # observation = self.observation_spaces[agent]["observation"]
-        observation = self.board.board_to_obs()
+        observation = self.board.board_to_obs(agent)
+        observation = np.dstack((observation[:, :, :3], self.board_history))
+        
         action_mask = self.board.get_action_mask()
 
         # for i in legal_moves:
@@ -135,7 +137,7 @@ class ChessEnv(AECEnv):
         # Placeholders to pass test until observe is completed
         # observation = Box(low=0, high=1, shape=(6, 6, self.OBS_CHANNELS))
         # action_mask = np.zeros(1764, "int8")
-
+        print("Done observing..")
         return {"observation" : observation, "action_mask" : action_mask}
 
 
@@ -170,6 +172,7 @@ class ChessEnv(AECEnv):
 
     def step(self, action):
 
+        print("Starting Step #", self.turns)
         # action = Discrete(3)
         # action = (8, 8, 73)
 
@@ -195,18 +198,21 @@ class ChessEnv(AECEnv):
 
         move = self.board.action_to_move(action)
 
-        print("PRINTING MY ACTION:", action)
-        print("PRINTING MY MOVE:", move)
+        # print("PRINTING MY ACTION:", action)
+        # print("PRINTING MY MOVE:", move)
 
         legal_moves = self.board.get_legal_moves()
+        print("LEGAL MOVES", legal_moves)
 
-        print("PRINTING MY ACTION:", action)
-        print("PRINTING MY MOVE:", move)
-        print("LEGAL MOVES:", legal_moves)
+        # print("PRINTING MY ACTION:", action)
+        # print("PRINTING MY MOVE:", move)
+        # print("LEGAL MOVES:", legal_moves)
 
         # assert move in legal_moves
         if move not in legal_moves:
-            for player in self.agents:
+            print("Illegal Move:", move)
+
+            for player in self.possible_agents:
                 self.terminations[player] = True
 
                 if player is agent:
@@ -215,12 +221,15 @@ class ChessEnv(AECEnv):
                     self.rewards[player] = 0
 
                 self.infos[player] = {"legal_moves": []}
+                print(player, "tried to play illegal move. Game over...")
                 self.game_over = True
 
 
         print("** Playing Turn Number:", self.turns)
 
         done = self.board.play_turn(team, move)
+
+        print("Is done?", done)
 
         if done:
             for player in self.agents:
@@ -240,14 +249,29 @@ class ChessEnv(AECEnv):
         self._accumulate_rewards()
         self.agent_selection = self._agent_selector.next()
 
-        next_board = self.observe()
-        self.board_history = np.dstack(next_board[:, :, 7], self.board_history[:, :, :-13])
+        print("Observing, in step...")
 
+        ### Need to update observation space with previous observations...
+        next_board = self.observe(agent)
+        # print("NEXT BOARD:", next_board)
+        print(np.shape(self.board_history))
+        print(np.shape(next_board['observation']))
+        # self.board_history = np.dstack((next_board['observation'][:, :, 3:], self.board_history[:, :, -10]))
 
+        # self.observation_space[agent]['observation'] = np.dstack((next_board['observation'][:, :, 3:], self.board_history[:, :, :-10]))
+        self.observation_spaces[agent] = self.observe(agent)
+        # self.observation_space[agent]['action_mask'] = next_board['action_mask']
+        
+
+        self.render()
+        print("Done step #", self.turns)
         return
 
 
     def render(self):
+
+        self.board.print_board()
+        print("moves:", self.turns)
         pass
 
 

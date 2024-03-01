@@ -146,7 +146,7 @@ class Board():
 
                 ### END TEST CASES ###
 
-                cur_pos = move[0].pos
+                cur_pos = move[0]
                 new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
 
                 valid = self.validate_move(move[0], move[1], new_pos) 
@@ -245,9 +245,8 @@ class Board():
         # GAME IS DONE
         return
     
-    ### NEED TO UPDATE play_turn() to accept a [[x, y], [w, z]] move format
-    ### ie; [pos, new_pos]
-    def play_turn(self, team, input = None):
+    ## Uses the old [Piece-object, [move]] style input
+    def play_turn_backup(self, team, input = None):
 
         print("---- PLAY TURN CALLED ---")
 
@@ -412,6 +411,180 @@ class Board():
             return False #, team, state
 
 
+
+    ### NEED TO UPDATE play_turn() to accept a [[x, y], [w, z]] move format
+    ### ie; [pos, new_pos]
+    def play_turn(self, team, input = None):
+
+        print("---- PLAY TURN CALLED ---")
+
+        state = [self.arr.copy(), None, None, None]
+        reward = 0
+
+        f = open(self.game_print_board_file, "w")
+        print("New Game:\n", file=f)
+        f.close()
+
+        self.print_board()
+        self.print_board(self.game_print_board_file)
+            
+        done = False
+        valid = False
+
+        invalid_moves = 0
+
+        while not valid:
+
+            if input is None:
+                print("Moves attempted:", invalid_moves)
+                print("Valid Moves:", self.total_moves)
+
+                if team == 0:
+                    print("White's Turn...")
+                    move = self.white.turn()
+                else:
+                    print("Black's Turn...")
+                    move = self.black.turn()
+            
+            else:
+                move = input
+
+            ### TEST CASES ###
+            TESTING_LIMIT = 1000
+
+            # Rook captures pawn
+            # move = [self.arr[7][7], (-6, 0)]
+            # self.arr[6][7] = '--'
+
+            # Pawn moving diagonally
+            # move = [self.arr[6][5], (-1, -1)]
+
+            # Pawn first move, two spaces
+            # move = [self.arr[6][5], (-2, 0)]
+
+            # Pawn moving off the board
+            # move = [self.arr[1][5], (0, 2)]
+
+            # Knight first move
+            # move = [self.arr[7][1], (-2, 1)]
+
+
+            ### END TEST CASES ###
+
+            cur_pos = move[0]
+            new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
+
+
+            piece = self.arr[cur_pos[0]][cur_pos[1]]
+            # print("SETTING PIECE VAR:", piece)
+
+            # print("Validating...")
+            valid = self.validate_move(piece, move[1], new_pos) 
+            # print("PIECE :", piece)
+            # print("VALID:", valid)
+
+            if not valid:
+                # print("The move was not valid. Try again...")
+                invalid_moves += 1
+
+                # Debugging
+                if invalid_moves == TESTING_LIMIT:
+
+                    print("Invalid Moves is", TESTING_LIMIT, "... Total moves is:", self.total_moves)
+
+                    self.print_board()
+                    self.print_board(self.game_print_board_file)
+                    valid = True
+                    done = True
+                    return True
+            
+            else: 
+
+                # print("Move is Valid!\n")
+
+                # Move piece on board
+
+                # Basic win checker 
+                    # Is King on the square we're taking...?
+                winner = -1
+                captured = self.arr[new_pos[0]][new_pos[1]]
+                if type(captured) == King: 
+
+                    reward = 1
+
+                    if captured.team == 1:
+                        winner = 0
+                        done = True
+
+                    if captured.team == 0:
+                        winner = 1 
+                        done = True
+
+                # End Basic win checker   
+                
+                self.arr[new_pos[0]][new_pos[1]] = piece
+
+                # update piece object's position
+                piece.pos = new_pos
+
+                # Set old space to '--'
+                self.arr[cur_pos[0]][cur_pos[1]] = "--" 
+
+                # Update total moves and print
+                self.total_moves += 1   
+
+                print("")
+
+                # Winner output for Basic win checker
+                if winner != -1:
+
+                    f = open(self.game_print_board_file, 'a')
+
+                    if winner == 0:
+
+                        print("*" * 15)                
+                        print("* White Wins! *") 
+                        print("*" * 15)  
+                    
+                        print("*" * 15, file=f)  
+                        print("* White Wins! *", file=f)
+                        print("*" * 15, file=f)  
+
+                    elif winner == 1:
+
+                        print("*" * 15)  
+                        print("* Black Wins! *")
+                        print("*" * 15) 
+                    
+                        print("*" * 15, file=f)  
+                        print("* Black Wins! *", file=f)
+                        print("*" * 15, file=f)  
+
+                    f.close()
+
+                    self.print_board(self.game_print_board_file)
+                    self.print_stats(self.game_print_board_file)
+
+                    self.print_board()
+                    self.print_stats()
+
+
+                    # End Winner output for Basic win checker
+
+
+        self.invalid_move_set += [invalid_moves] # Track list of invald_moves / turn
+        # state[1] = move
+        # state[2] = self.arr.copy()
+        # state[3] = reward
+
+        print("Done play_turn()...", done)
+        # Turn is done
+        if done:
+            return True #, team, state
+        else:
+            return False #, team, state
+
+
     def take_step(self, move, step):
 
         # Set first step
@@ -435,6 +608,9 @@ class Board():
         # print("VALIDATE MOVE CALLED")
         # Check if move is onto board
 
+        if piece == '--':
+            return False
+
         if new_pos[0] < 0 or new_pos [0] >= self.BOARD_SIZE:
             return False
         
@@ -442,6 +618,7 @@ class Board():
             return False
         
         # print(type(piece))
+        # print(piece)
         # print("Move:", move)
         # print("New Position:", new_pos)
 
@@ -477,14 +654,23 @@ class Board():
 
     def validate_knight(self, piece, new_pos):
 
-        print("Nothing gets in the way of a Knight...")
+        # print("Nothing gets in the way of a Knight...")
+
+        # # Check if step is off the board
+        # if pos[0] < 0 or pos[0] >= self.BOARD_SIZE:
+        #     # print("Piece is stepping off the board")
+        #     return False
+        
+        # if pos[1] < 0 or pos[1] >= self.BOARD_SIZE:
+        #     # print("Piece is stepping off the board")
+        #     return False
 
         if self.arr[new_pos[0]][new_pos[1]] == '--':
-            print("Space is available. Move is Valid.")
+            # print("Space is available. Move is Valid.")
             return True
 
         if self.arr[new_pos[0]][new_pos[1]].team == piece.team:
-            print("The space occupied by your own piece...")
+            # print("The space occupied by your own piece...")
             return False
         
         else:
@@ -499,13 +685,13 @@ class Board():
         pos = list(piece.pos)
         step = self.take_step(move, step)
 
-        print('Move:', move)
+        # print('Move:', move)
 
         # If trying to move 2 spaces...
         if (move[0] == 2 or move[0] == -2) or (move[1] == 2 or move[1] == -2):
 
             if piece.num_moves != 0:
-                print("Pawn can only move 2 spaces on its first turn...")
+                # print("Pawn can only move 2 spaces on its first turn...")
                 return False
             
             else:
@@ -514,32 +700,33 @@ class Board():
 
                     pos[0] += step[0]
                     pos[1] += step[1]
+
+                    # Check if step is off the board
+                    if pos[0] < 0 or pos[0] >= self.BOARD_SIZE:
+                        # print("Piece is stepping off the board")
+                        return False
+                    
+                    if pos[1] < 0 or pos[1] >= self.BOARD_SIZE:
+                        # print("Piece is stepping off the board")
+                        return False
             
                     if pos != new_pos:
-
-                        # Check if step is off the board
-                        if pos[0] < 0 or pos[1] >= self.BOARD_SIZE:
-                            print("Piece is stepping off the board")
-                            return False
                         
-                        if pos[0] < 0 or pos[1] >= self.BOARD_SIZE:
-                            print("Piece is stepping off the board")
-                            return False
-                        
+                        print("POS out of range:", pos)
                         # Check a piece is in the way
                         if self.arr[pos[0]][pos[1]] != '--':
-                            print("space not empty...")
+                            # print("space not empty...")
                             return False
                     
                     # Have reached the target spot..
                     else:  
 
                         if self.arr[pos[0]][pos[1]] == '--':
-                            print("Space is available. Move is Valid.")
+                            # print("Space is available. Move is Valid.")
                             return True
 
                         elif self.arr[pos[0]][pos[1]].team == piece.team:
-                            print("The space occupied by your own piece...")
+                            # print("The space occupied by your own piece...")
                             return False
 
         #Trying to capture diagonally...
@@ -549,16 +736,20 @@ class Board():
             pos[1] += step[1]
 
             # Check if step is off the board
-            if pos[0] < 0 or pos[1] >= self.BOARD_SIZE:
-                print("Piece is stepping off the board")
+            if pos[0] < 0 or pos[0] >= self.BOARD_SIZE:
+                # print("Piece is stepping off the board")
+                return False
+
+            if pos[1] < 0 or pos[1] >= self.BOARD_SIZE:
+                # print("Piece is stepping off the board")
                 return False
 
             if self.arr[pos[0]][pos[1]] == '--':
-                print("Pawn cannot move diagonally without capturing... Move invalid")
+                # print("Pawn cannot move diagonally without capturing... Move invalid")
                 return False
             
             elif self.arr[pos[0]][pos[1]].team == piece.team:
-                print("The space occupied by your own piece...")
+                # print("The space occupied by your own piece...")
                 return False
             
             else:
@@ -576,15 +767,15 @@ class Board():
 
             # Check if step is off the board
             if pos[0] < 0 or pos[1] >= self.BOARD_SIZE:
-                print("Piece is stepping off the board")
+                # print("Piece is stepping off the board")
                 return False
 
             if self.arr[pos[0]][pos[1]] != '--':
-                print("The space is infront of the pawn is occupied...")
+                # print("The space is infront of the pawn is occupied...")
                 return False
 
             else:
-                print("Pawn is moving forward one space!")
+                # print("Pawn is moving forward one space!")
                 return True
 
 
@@ -595,6 +786,7 @@ class Board():
     def validate_other(self, piece, move, new_pos):
 
         step = [0, 0]
+        # print("TEST:", piece)
         pos = list(piece.pos)
         step = self.take_step(move, step)
 
@@ -604,22 +796,32 @@ class Board():
                 pos[0] += step[0]
                 pos[1] += step[1]
 
+                # Check if step is off the board
+                if pos[0] < 0 or pos[0] >= self.BOARD_SIZE:
+                    # print("Piece is stepping off the board")
+                    return False
+                
+                if pos[1] < 0 or pos[1] >= self.BOARD_SIZE:
+                    # print("Piece is stepping off the board")
+                    return False
+
                 if pos != new_pos:
                 
                     # Check a piece is in the way
+                    print("POS Out of range:", pos)
                     if self.arr[pos[0]][pos[1]] != '--':
-                        print("space not empty...")
+                        # print("space not empty...")
                         return False
                 
                 # Have reached the target spot..
                 else:  
 
                     if self.arr[pos[0]][pos[1]] == '--':
-                        print("Space is available. Move is Valid.")
+                        # print("Space is available. Move is Valid.")
                         return True
 
                     elif self.arr[pos[0]][pos[1]].team == piece.team:
-                        print("The space occupied by your own piece...")
+                        # print("The space occupied by your own piece...")
                         return False
                     
                     else:
@@ -630,7 +832,7 @@ class Board():
         
 
     def capture(self):
-        print("Capturing..!")
+        # print("Capturing..!")
         # Capturing already works by default, because the piece captured is replaced on the board by the capturing piece
         # Not sure what happens when the engine tries to move a piece that has been captured.... should add checking if the piece is still active.. or only choose a move from active pieces
         # self.print_board()
@@ -671,33 +873,54 @@ class Board():
                 if (abs(x)==2 and abs(y)==1) or (abs(x)==1 and abs(y)==2):
                     actions += [[x, y]]
 
-        print(actions)
-        print(len(actions))
+        # print(actions)
+        # print(len(actions))
         return actions
 
 
     CHANNEL_DICT = {
 
-        "wp" : 0, # 3
-        "wr" : 1, # 4 ..
-        "wn" : 2, 
-        "wq" : 3,
-        "wk" : 4,
+        "wp" : 3, # 3
+        "wr" : 4, # 4 ..
+        "wn" : 5, 
+        "wq" : 6,
+        "wk" : 7,
 
-        "bp" : 5,
-        "br" : 6, 
-        "bn" : 7,
-        "bq" : 8,
-        "bk" : 9 # .. 12
+        "bp" : 8,
+        "br" : 9, 
+        "bn" : 10,
+        "bq" : 11,
+        "bk" : 12 # .. 12
     }
 
 
-    def board_to_obs(self):
+    def board_to_obs(self, agent):
         """Takes the current board state, converts it to a 3d array 
             represnting an observation and returns"""
 
-        observation = np.zeros((6, 6, 10), dtype=bool)
+        observation = np.zeros((6, 6, 13), dtype=bool)
 
+        if agent == 'player_0':
+            team = 0
+        else:
+            team = 1
+        
+        # Set team channel of observation
+        for i in range(len(self.arr)):
+            for j in range(len(self.arr[i])):
+
+                observation[i][j][0] == team
+
+        # Set mvove counter channel
+        # Not currently used. Leave at zeros (consdier removing)
+
+        # Set board edges
+        for i in range(len(self.arr)):
+            for j in range(len(self.arr[i])):
+
+                observation[i][j][2] == 1
+
+        # Set piece position channels
         for i in range(len(self.arr)):
             for j in range(len(self.arr[i])):
 
@@ -705,7 +928,7 @@ class Board():
 
                 if square != "--":
 
-                    print("Square not empty.. Updating Obs at:", i, j, self.CHANNEL_DICT[square.__repr__()])
+                    # print("Square not empty.. Updating Obs at:", i, j, self.CHANNEL_DICT[square.__repr__()])
                     observation[i][j][self.CHANNEL_DICT[square.__repr__()]] =True
 
         return observation
@@ -716,8 +939,8 @@ class Board():
         # action_mask = [0 for i in range(6*6*49)]
         # action_mask = np.zeros((1764, ), dtype=np.int8)
         action_mask = [[[0 for i in range(49)] for j in range(6)] for k in range(6)]
-        print(action_mask)
-        print(len(action_mask))
+        # print(action_mask)
+        # print(len(action_mask))
         self.legal_moves = []
 
         c = 0
@@ -730,17 +953,17 @@ class Board():
 
                     for move in self.action_to_move_list:
 
-                        print("len:", len(self.action_to_move_list))
-                        print("atom:", self.action_to_move_list)
+                        # print("len:", len(self.action_to_move_list))
+                        # print("atom:", self.action_to_move_list)
 
                         new_pos = [(move[0] + i), (move[1] + j)]
 
-                        print('*'*7)
-                        print("C:", c)
-                        print("I:", i)
-                        print("J:", j)
-                        print("Move:", move)
-                        print("New Pos:", new_pos)
+                        # print('*'*7)
+                        # print("C:", c)
+                        # print("I:", i)
+                        # print("J:", j)
+                        # print("Move:", move)
+                        # print("New Pos:", new_pos)
                         valid = self.validate_move(self.arr[i][j], move, new_pos)
 
                         if valid: 
@@ -755,7 +978,8 @@ class Board():
                         c += 1
 
         # action_mask = np.array
-        return np.asarray(action_mask)
+        print("Done getting action mask....")
+        return np.ndarray.flatten(np.asarray(action_mask, dtype=np.int8))
 
 
     def get_legal_moves(self):
@@ -851,7 +1075,8 @@ class Team():
         move = random.choice(piece.move_set)
         print('Move', move)
 
-        return [piece, move]
+        # return [piece, move]
+        return [piece.pos, move]
 
 
 class Piece():

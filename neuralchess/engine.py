@@ -15,11 +15,6 @@ def main():
 
     # game.__init__()
 
-    # print(game.action_to_move_list)
-
-    # game.print_board()
-
-    # game.play_game()
 
     # done = False
     # team = 0
@@ -32,85 +27,53 @@ def main():
         
     #     team = not team
 
-    # print("FINAL OBSERVATION:\n", list(game.board_to_obs()))
-
-    # test_action = 3*5*9
-    # print("TEST ACTION TO MOVE:", game.action_to_move(test_action))
+    ### DONE TESTING BOARD ###
 
 
     ### Testing Env ###
     game = env.env()
-
-    # test = [[[0]*8 for i in range(8)]]
-
-    # print(test[0])
-
     game.reset()
 
-    # action = game.action_space(game.agent_selection).sample()
-
-    # print("ACTION:", action)
-    # print("ACTION:", action % 6)
-
-    # print("ACTION_TO_MOVE_LIST:", game.action_to_move_list)
-    # print("LEN:", len(game.action_to_move_list))
-
-    # game.reset()
-
-    # observation_0, *_ = game.last()
-
-    # print("OBS_0:", observation_0)
-    # print("OBS_0 Type:", type(observation_0))
-
-    # if isinstance(observation_0, dict) and "observation" in observation_0:
-    #     observation_0 = observation_0["observation"]
-    #     print("OBS_0:", observation_0)
-    #     print("OBS_0 Type:", type(observation_0))
 
 
     # while game.game_over is False:
 
     #     agent = game.agent_selection 
+    #     print("Observing from main...")
     #     game.observe(agent)
+    #     print("Done observing from main...")
         
     #     done = False
 
+    #     obs_space = game.observation_space(agent)
+
+    #     print("Fetching action space....")
+
+    #     act_space = game.action_space(agent)
+
+    #     print("Fetched ACtion Space:", act_space)
+
+    #     act_mask = obs_space['action_mask']
+    #     print(act_mask)
+
     #     while not done:
 
-    #         action = random.randint(0, 1764)
+    #         action = act_space.sample()
+    #         print("ACTION:", action)
 
-    #         obs_space = game.observation_space(agent)
-
-    #         if obs_space["action_mask"] == 1:
+    #         if action == 1:
     #             done = True
+    #         # done = True
 
     #     game.step(action)
-    #     done = True
-
-
-
-
-    agent = game.agent_selection 
-    game.observe(agent)
     
-    done = False
+    # # done = True
 
-    while not done:
-
-        action = random.randint(0, 1764)
-
-        obs_space = game.observation_space(agent)
-
-        if obs_space["action_mask"] == 1:
-            done = True
-        done= True
-
-    game.step(action)
+    # if game.game_over is True:
+    #     print("GAME OVER")
 
 
-
-
-    # api_test(game, num_cycles=10, verbose_progress=True)
+    api_test(game, num_cycles=10, verbose_progress=True)
     # print(result[0])
 
     # print("")

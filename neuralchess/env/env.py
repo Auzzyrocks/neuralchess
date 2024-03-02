@@ -138,7 +138,7 @@ class ChessEnv(AECEnv):
         return {"observation" : observation, "action_mask" : action_mask}
 
 
-    def close():
+    def close(self):
         return
 
 
@@ -172,14 +172,9 @@ class ChessEnv(AECEnv):
 
     def step(self, action):
 
-        print("Starting Step #", self.turns)
-        # action = Discrete(3)
-        # action = (8, 8, 73)
-
         if self.terminations[self.agent_selection] or self.truncations[self.agent_selection]:
             self._was_dead_step(action)
             return
-
 
         agent = self.agent_selection
 
@@ -233,7 +228,6 @@ class ChessEnv(AECEnv):
 
         if done:
             for player in self.agents:
-                # 
 
                 if player is agent:
                     self.terminations[player] = True
@@ -256,6 +250,11 @@ class ChessEnv(AECEnv):
 
         # print(np.shape(self.board_history))
         # print(np.shape(next_board['observation']))
+
+        ###
+        # next_board = self.board.board_to_obs(agent)
+        # self.board_history = np.dstack((next_board[:, :, :3], self.board_history[:, :, :-10]))
+        ###
 
         # self.observation_space[agent]['observation'] = np.dstack((next_board['observation'][:, :, 3:], self.board_history[:, :, :-10]))
         self.observation_spaces[agent] = self.observe(agent)

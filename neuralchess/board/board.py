@@ -562,6 +562,11 @@ class Board():
         # print("Move:", move)
         # print("New Position:", new_pos)
 
+        # Check if move is in piece-types move list
+        if move not in piece.move_set:
+            # print("Move is not in the pieces move set")
+            return False
+
         # KNIGHT: Nothing gets in the way of a knight...
         if type(piece) is Knight:
 

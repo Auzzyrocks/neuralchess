@@ -35,20 +35,20 @@ def main():
     game = env.env()
     game.reset()
 
-    while game.game_over is False:
+    # while game.game_over is False:
 
-        agent = game.agent_selection 
-        game.observe(agent)
+    #     agent = game.agent_selection 
+    #     game.observe(agent)
         
-        act_space = game.action_space(agent)
+    #     act_space = game.action_space(agent)
 
-        action = act_space.sample(game.board.get_action_mask())
+    #     action = act_space.sample(game.board.get_action_mask())
 
-        game.step(action)
+    #     game.step(action)
 
 
-    if game.game_over is True:
-        print("GAME OVER")
+    # if game.game_over is True:
+    #     print("GAME OVER")
 
     game.reset()
     api_test(game, num_cycles=10, verbose_progress=True)

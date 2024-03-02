@@ -4,7 +4,7 @@ from board import board
 import random
 import numpy as np
 
-from pettingzoo.test import api_test, seed_test, render_test, performance_benchmark
+from pettingzoo.test import api_test, seed_test, render_test, performance_benchmark, test_save_obs
 
 def myEnvTest(game):
 
@@ -67,9 +67,9 @@ def main():
     seed_test(env.env, num_cycles=10)
 
     ### Render Test - Working
-    # render_test(env.env)
+    render_test(env.env)
 
-    ### Performance Benchmark Test
+    ### Performance Benchmark Test - Working
     performance_benchmark(env.env())
 
     ### Done Testing Env ###

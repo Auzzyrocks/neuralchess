@@ -133,7 +133,13 @@ class ChessEnv(AECEnv):
         observation = self.board.board_to_obs(agent)
         observation = np.dstack((observation[:, :, :3], self.board_history))
         
-        action_mask = self.board.get_action_mask()
+        # action_mask = self.board.get_action_mask()
+
+        action_mask = np.zeros(1764, "int8")
+        legal_moves = self.board.get_action_mask()
+
+        for i in legal_moves:
+            action_mask[i] = 1
 
         return {"observation" : observation, "action_mask" : action_mask}
 

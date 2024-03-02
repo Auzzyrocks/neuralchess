@@ -70,7 +70,7 @@ def main():
     # render_test(env.env)
 
     ### Performance Benchmark Test
-    # performance_benchmark(env.env())
+    performance_benchmark(env.env())
 
     ### Done Testing Env ###
 

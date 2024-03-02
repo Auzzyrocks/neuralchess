@@ -205,15 +205,17 @@ class ChessEnv(AECEnv):
             print("Illegal Move:", move)
 
             for player in self.possible_agents:
-                self.terminations[player] = True
+                # self.terminations[player] = True
 
                 if player is agent:
+                    print(player, "tried to play illegal move. Game over...")
+                    self.terminations[player] = True
                     self.rewards[player] = -1
                 else:
                     self.rewards[player] = 0
+                    self.infos[player] = {"legal_moves": []}
 
-                self.infos[player] = {"legal_moves": []}
-                print(player, "tried to play illegal move. Game over...")
+                # self.infos[player] = {"legal_moves": []}
                 self.game_over = True
 
 
@@ -229,8 +231,8 @@ class ChessEnv(AECEnv):
                     self.rewards[player] = 1
                 else:
                     self.rewards[player] = -1
-
-                self.infos[player] = {"legal_moves": []}
+                    
+                # self.infos[player] = {"legal_moves": []}
                 self.game_over = True
 
 

@@ -66,7 +66,9 @@ class ChessEnv(AECEnv):
         self.ACT_CHANNELS = 49
 
         self.BOARD_SIZE = 6
-        self.possible_agents = ["player_0", "player_1"] # White = 0, Black = 1
+        self.agents = ["player_0", "player_1"] # White = 0, Black = 1
+        self.possible_agents = self.agents[:] # White = 0, Black = 1
+        self._agent_selector = agent_selector(self.agents)
 
         self.board = board.Board()
         self.game_over = False
@@ -82,6 +84,10 @@ class ChessEnv(AECEnv):
                 }
             ) for agent in self.possible_agents}
 
+        self.rewards = {agent: 0 for agent in self.agents}
+        self.terminations = {agent: False for agent in self.agents}
+        self.truncations = {agent: False for agent in self.agents}
+        self.infos = {agent: {} for agent in self.agents}
 
         self.action_spaces = {agent : Discrete(6 * 6 * self.ACT_CHANNELS) for agent in self.possible_agents}
 
@@ -140,7 +146,8 @@ class ChessEnv(AECEnv):
 
         self.__init__()
 
-        self.board.reset()
+        # self.board.reset()
+        # self.board = board.Board()
 
         self.agents = copy(self.possible_agents)
         self.num_moves = 0

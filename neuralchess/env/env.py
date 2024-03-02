@@ -200,7 +200,14 @@ class ChessEnv(AECEnv):
         # print("PRINTING MY MOVE:", move)
         # print("LEGAL MOVES:", legal_moves)
 
-        # assert move in legal_moves
+        done = None
+        done = self.board.play_turn(team, move)
+
+        # Check if move in legal_moves
+        # If not, rewards: -1 for agent with illegal move, 0 for other
+        # Action_mask doesn't seem to be applied by the test fxs in the way I called it
+        # Because action_space.sample() seemingly doesn't account for it..
+        # Otherwise we could just assert move is legal
         if move not in legal_moves:
             print("Illegal Move:", move)
 
@@ -208,30 +215,31 @@ class ChessEnv(AECEnv):
                 # self.terminations[player] = True
 
                 if player is agent:
-                    print(player, "tried to play illegal move. Game over...")
                     self.terminations[player] = True
                     self.rewards[player] = -1
+                    print(player, "tried to play illegal move. Game over...")
+                    self.infos[player] = {"legal_moves": []}
+
                 else:
                     self.rewards[player] = 0
-                    self.infos[player] = {"legal_moves": []}
 
                 # self.infos[player] = {"legal_moves": []}
                 self.game_over = True
-
-
-        print("** Playing Turn Number:", self.turns)
-
-        done = self.board.play_turn(team, move)
+                # done = True
+        
 
         if done:
             for player in self.agents:
-                self.terminations[player] = True
+                # self.terminations[player] = True
 
                 if player is agent:
+                    # self.terminations[player] = True
                     self.rewards[player] = 1
+                    self.infos[player] = {"legal_moves": []}
+
                 else:
                     self.rewards[player] = -1
-                    
+
                 # self.infos[player] = {"legal_moves": []}
                 self.game_over = True
 

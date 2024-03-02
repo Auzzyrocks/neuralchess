@@ -133,7 +133,7 @@ class ChessEnv(AECEnv):
 
 
     def close():
-        pass
+        return
 
 
     def reset(self, seed=None, options=None):

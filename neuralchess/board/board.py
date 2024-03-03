@@ -437,7 +437,6 @@ class Board():
         new_pos = [cur_pos[0] + move[1][0], cur_pos[1] + move[1][1]]
 
         piece = self.arr[cur_pos[0]][cur_pos[1]]
-        print("PIECE IS:", piece)
 
         if piece is str:
             return False
@@ -735,7 +734,6 @@ class Board():
     def validate_other(self, piece, move, new_pos):
 
         step = [0, 0]
-        # print("TEST:", piece)
         pos = list(piece.pos)
         step = self.take_step(move, step)
 
@@ -882,7 +880,6 @@ class Board():
     def get_action_mask(self):
 
         action_mask = [[[0 for i in range(49)] for j in range(6)] for k in range(6)]
-        # self.legal_moves = []
 
         c = 0
         for i in range(len(self.arr)):
@@ -893,15 +890,11 @@ class Board():
                     c = 0
                     for move in self.action_to_move_list:
 
-                        # move = [0 , -1]
-
                         new_pos = [(move[0] + i), (move[1] + j)]
 
-                        # print("PIECE:", self.arr[i][j], move, new_pos)
                         valid = self.validate_move(self.arr[i][j], move, new_pos)
 
                         if valid is True: 
-                            # print("*** MOVE IS VALID! ***")
                             action_mask[i][j][c] = 1
 
                         else:
@@ -909,9 +902,6 @@ class Board():
 
                         c += 1
 
-        # print("RETURNING ACTION MASK:", action_mask)
-        # print(self.action_to_move_list)
-        # print("MOVE SET", Pawn.move_set)
         return np.ndarray.flatten(np.asarray(action_mask, dtype=np.int8))
 
 

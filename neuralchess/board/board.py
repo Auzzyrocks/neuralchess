@@ -552,9 +552,11 @@ class Board():
             return False
 
         if new_pos[0] < 0 or new_pos [0] >= self.BOARD_SIZE:
+            # print("Move is off the board")
             return False
         
         if new_pos[1] < 0 or new_pos [1] >= self.BOARD_SIZE:
+            # print("Move is off the board")
             return False
         
         # print(type(piece))
@@ -579,6 +581,7 @@ class Board():
             
             if self.validate_pawn(piece, move, new_pos):
                 return True
+            # print("Pawn move wasn not valid")
             return False
         
         elif type(piece) is King:
@@ -595,6 +598,7 @@ class Board():
             if self.validate_other(piece, move, new_pos):
                 return True
             return False
+
 
 
     def validate_knight(self, piece, new_pos):
@@ -698,6 +702,7 @@ class Board():
             
             else:
                 self.capture()
+                # print("Pawn is capturing!")
                 return True
             
         # Trying to move forward
@@ -877,7 +882,7 @@ class Board():
     def get_action_mask(self):
 
         action_mask = [[[0 for i in range(49)] for j in range(6)] for k in range(6)]
-        self.legal_moves = []
+        # self.legal_moves = []
 
         c = 0
         for i in range(len(self.arr)):
@@ -888,10 +893,15 @@ class Board():
                     c = 0
                     for move in self.action_to_move_list:
 
+                        # move = [0 , -1]
+
                         new_pos = [(move[0] + i), (move[1] + j)]
+
+                        # print("PIECE:", self.arr[i][j], move, new_pos)
                         valid = self.validate_move(self.arr[i][j], move, new_pos)
 
-                        if valid: 
+                        if valid is True: 
+                            # print("*** MOVE IS VALID! ***")
                             action_mask[i][j][c] = 1
 
                         else:
@@ -899,6 +909,9 @@ class Board():
 
                         c += 1
 
+        # print("RETURNING ACTION MASK:", action_mask)
+        # print(self.action_to_move_list)
+        # print("MOVE SET", Pawn.move_set)
         return np.ndarray.flatten(np.asarray(action_mask, dtype=np.int8))
 
 
@@ -1025,7 +1038,7 @@ class Piece():
 
 class Pawn(Piece):
 
-    move_set = [(0, 1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    move_set = [[0, 1], [-1, 1], [1, -1], [-1, 1], [-1, -1]]
 
 
 class Rook(Piece):
@@ -1040,20 +1053,20 @@ class Rook(Piece):
 
         for n in range(Board.BOARD_SIZE):
             i = n + 1
-            self.move_set.append((i, 0))
-            self.move_set.append((0, i)) 
-            self.move_set.append((-i, 0)) 
-            self.move_set.append((0, -i)) 
+            self.move_set.append([i, 0])
+            self.move_set.append([0, i]) 
+            self.move_set.append([-i, 0]) 
+            self.move_set.append([0, -i]) 
 
 
 class Knight(Piece):
 
     i = 1
     j = 2
-    move_set = [(i, j), (j, i), 
-                (-i, j), (j, -i),
-                (i, -j), (-j, i),
-                (-i, -j), (-j, -i)]
+    move_set = [[i, j], [j, i], 
+                [-i, j], [j, -i],
+                [i, -j], [-j, i],
+                [-i, -j], [-j, -i]]
     
 
 # class Bishop(Piece):
@@ -1097,5 +1110,5 @@ class Queen(Piece):
 
 class King(Piece):
 
-    move_set = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    move_set = [[0, 1], [1, 0], [0, -1], [-1, 0]]
 

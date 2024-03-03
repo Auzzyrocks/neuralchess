@@ -85,6 +85,8 @@ class ChessEnv(AECEnv):
             ) for agent in self.possible_agents}
 
         self.rewards = {agent: 0 for agent in self.agents}
+        self._cumulative_rewards = {agent: 0 for agent in self.agents}
+
         self.terminations = {agent: False for agent in self.agents}
         self.truncations = {agent: False for agent in self.agents}
         self.infos = {agent: {} for agent in self.agents}
@@ -135,11 +137,12 @@ class ChessEnv(AECEnv):
         
         # action_mask = self.board.get_action_mask()
 
-        action_mask = np.zeros(1764, "int8")
-        legal_moves = self.board.get_action_mask()
+        # action_mask = np.zeros(1764, "int8")
+        # legal_moves = self.board.get_action_mask()
+        action_mask = self.board.get_action_mask()
 
-        for i in legal_moves:
-            action_mask[i] = 1
+        # for i in legal_moves:
+        #     action_mask[i] = 1
 
         return {"observation" : observation, "action_mask" : action_mask}
 
@@ -155,11 +158,15 @@ class ChessEnv(AECEnv):
         # self.board.reset()
         # self.board = board.Board()
 
-        self.agents = copy(self.possible_agents)
+        # self.agents = copy(self.possible_agents)
+        self.agents = ["player_0", "player_1"] # White = 0, Black = 1
+        self.possible_agents = self.agents[:] # White = 0, Black = 1
+
         self.num_moves = 0
 
         self.rewards = {agent: 0 for agent in self.agents}
-        self._cumulative_rewards = {agent: 0 for agent in self.agents}
+        # self._cumulative_rewards = {agent: 0 for agent in self.agents}
+        self._cumulative_rewards = {'player_0': 0, 'player_1': 0}
         self.terminations = {agent: False for agent in self.agents}
         self.truncations = {agent: False for agent in self.agents}
         self.infos = {agent: {} for agent in self.agents}
@@ -168,11 +175,11 @@ class ChessEnv(AECEnv):
         self._agent_selector = agent_selector(self.agents)
         self.agent_selection = self._agent_selector.next()
 
-        # observation = [[[0]*self.BOARD_SIZE for i in range(self.BOARD_SIZE)] for j in range(100)]
-        observation = Box(low=0, high=1, shape=(6, 6, self.OBS_CHANNELS), dtype=bool)
 
-        # observation = set_board(observation)    
-        self.observations = {agent: observation for agent in self.agents}
+        #Trying to set action mask initially...
+        for agent in self.agents:
+            self.observation_spaces[agent] = self.observe(agent)
+
         return
 
 
@@ -212,14 +219,15 @@ class ChessEnv(AECEnv):
         if move not in legal_moves:
             print("Illegal Move:", move)
 
-            for player in self.possible_agents:
-                # self.terminations[player] = True
+            for player in self.agents:
+                self.terminations[player] = True
+                self.infos[player] = {"legal_moves": []}
 
                 if player is agent:
                     print(player, "tried to play illegal move. Game over...")
-                    self.terminations[player] = True
+                    # self.terminations[player] = True
                     self.rewards[player] = -1
-                    self.infos[player] = {"legal_moves": []}
+                    # self.infos[player] = {"legal_moves": []}
 
                 else:
                     self.rewards[player] = 0
@@ -234,13 +242,16 @@ class ChessEnv(AECEnv):
 
         if done:
             for player in self.agents:
+                self.terminations[player] = True
+                self.infos[player] = {"legal_moves": []}
 
                 if player is agent:
-                    self.terminations[player] = True
+                    # self.terminations[player] = True
                     self.rewards[player] = 1
+                    # self.infos[player] = {"legal_moves": []}
                 else:
                     self.rewards[player] = -1
-                    self.infos[player] = {"legal_moves": []}
+                    # self.infos[player] = {"legal_moves": []}
 
                 # self.infos[player] = {"legal_moves": []}
                 self.game_over = True
@@ -248,6 +259,7 @@ class ChessEnv(AECEnv):
 
         self.turns += 1
         self._accumulate_rewards()
+
         self.agent_selection = self._agent_selector.next()
 
         ### Need to update observation space with previous observations...
